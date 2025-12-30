@@ -5,7 +5,7 @@
 
   <PropertyGroup>
     <RimWorldManaged>$(RimWorldDir)\RimWorldWin64_Data\Managed</RimWorldManaged>
-    <ModOutputPath>$(RimWorldDir)\Mods\FreeWill</ModOutputPath>
+    <ModOutputPath>$(RimWorldDir)\Mods\free-ish-will\Assemblies</ModOutputPath>
 
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <AssemblyName>FreeWill</AssemblyName>

@@ -10,17 +10,11 @@ namespace FreeWill
     [StaticConstructorOnStartup]
     public static class FreeWillResources
     {
-        public static readonly Texture2D SettingsIcon = 
-            ContentFinder<Texture2D>.Get("UI/FreeWill/Settings", false) 
-            ?? Widgets.CheckboxOnTex;
+        public static readonly Texture2D SettingsIcon = ContentFinder<Texture2D>.Get("UI/Icons/Options/OptionsGeneral", false);
         
-        public static readonly Texture2D RefreshIcon = 
-            ContentFinder<Texture2D>.Get("UI/FreeWill/Refresh", false) 
-            ?? Widgets.CheckboxOnTex;
+        public static readonly Texture2D RefreshIcon = ContentFinder<Texture2D>.Get("UI/Commands/Autoload", false);
         
-        public static readonly Texture2D FocusIcon = 
-            ContentFinder<Texture2D>.Get("UI/FreeWill/Focus", false) 
-            ?? Widgets.CheckboxOnTex;
+        public static readonly Texture2D FocusIcon = ContentFinder<Texture2D>.Get("UI/Icons/Study", false) ;
         
         public static readonly Texture2D FreeWillOn = Widgets.CheckboxOnTex;
         public static readonly Texture2D FreeWillOff = Widgets.CheckboxOffTex;
