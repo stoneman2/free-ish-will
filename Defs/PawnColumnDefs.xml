@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <PawnColumnDef>
+    <defName>FreeWillToggle</defName>
+    <workerClass>FreeWill.PawnColumnWorkers.FreeWillToggle</workerClass>
+    <sortable>false</sortable>
+    <headerTip>FreeWillToggleHeader</headerTip>
+  </PawnColumnDef>
+</Defs>

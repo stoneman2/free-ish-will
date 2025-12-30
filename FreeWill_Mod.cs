@@ -50,11 +50,22 @@ namespace FreeWill
         {
             if (pawn.Dead
                 || pawn.workSettings == null
-                || !pawn.workSettings.EverWork
-                || !FreeWillUtility.GetWorldComponent().HasFreeWill(pawn, pawn.GetUniqueLoadID()))
+                || !pawn.workSettings.EverWork)
             {
                 return true;
             }
+            
+            var worldComp = FreeWillUtility.GetWorldComponent();
+            if (worldComp == null || !worldComp.HasFreeWill(pawn, pawn.GetUniqueLoadID()))
+            {
+                return true;
+            }
+            
+            if (__instance?.def?.workType != null && worldComp.IsWorkTypeDisabled(__instance.def.workType))
+            {
+                return true;
+            }
+            
             FreeWillUtility.DoCell(rect, pawn, table, __instance);
             return false;
         }

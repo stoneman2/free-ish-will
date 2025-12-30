@@ -9,6 +9,49 @@
   <FreeWillResetGlobalSlidersButtonLabel>Reset global sliders</FreeWillResetGlobalSlidersButtonLabel>
   <FreeWillResetGlobalSlidersLabel>Reset all global overrides to zero</FreeWillResetGlobalSlidersLabel>
 
+  <!-- Performance Settings -->
+  <FreeWillPerformanceSettings>Performance Settings</FreeWillPerformanceSettings>
+  <FreeWillTickInterval>Update interval (ticks)</FreeWillTickInterval>
+  <FreeWillTickIntervalLong>How often priorities are recalculated (in game ticks). Higher will drastically improve performance but might make updates a lot slower. Default: 4. Range: 1-60.</FreeWillTickIntervalLong>
+  
+  <!-- Work Tab UI -->
+  <FreeWillOpenSettings>Open FreeWill Settings</FreeWillOpenSettings>
+  <FreeWillRefreshPriorities>Force Recalculate All Priorities</FreeWillRefreshPriorities>
+  <FreeWillPrioritiesRefreshed>FreeWill priorities refreshed.</FreeWillPrioritiesRefreshed>
+  <FreeWillSetGlobalFocus>Set Global Focus (All Pawns)</FreeWillSetGlobalFocus>
+  <FreeWillClearGlobalFocus>Clear Global Focus</FreeWillClearGlobalFocus>
+  
+  <!-- Per-Pawn Toggle -->
+  <FreeWillToggleHeader>FreeWill</FreeWillToggleHeader>
+  <FreeWillToggleEnable>Enable FreeWill for {0}</FreeWillToggleEnable>
+  <FreeWillToggleDisable>Disable FreeWill for {0}</FreeWillToggleDisable>
+  <FreeWillToggleCannotChange>Cannot change FreeWill (ideology restriction)</FreeWillToggleCannotChange>
+  
+  <!-- Focus Dialog -->
+  <FreeWillGlobalFocusTitle>Global Focus</FreeWillGlobalFocusTitle>
+  <FreeWillFocusIntensity>Focus Intensity</FreeWillFocusIntensity>
+  <FreeWillDefocusIntensity>Other Work</FreeWillDefocusIntensity>
+  <FreeWillMaxPawns>Max Pawns</FreeWillMaxPawns>
+  <FreeWillUnlimited>None</FreeWillUnlimited>
+  <FreeWillSelectWorkType>Select Work Type</FreeWillSelectWorkType>
+  <FreeWillApplyFocus>Apply Focus</FreeWillApplyFocus>
+  <FreeWillClearFocus>Clear Focus</FreeWillClearFocus>
+  <FreeWillCancel>Cancel</FreeWillCancel>
+  <FreeWillNoWorkTypeSelected>Please select a work type first.</FreeWillNoWorkTypeSelected>
+  <FreeWillGlobalFocusSet>Everyone now focusing on {0}!</FreeWillGlobalFocusSet>
+  <FreeWillGlobalFocusCleared>Global focus cleared.</FreeWillGlobalFocusCleared>
+  
+  <!-- Per-Work Type Toggle -->
+  <FreeWillWorkTypeEnabled>Click to disable FreeWill for this job (allows manual control)</FreeWillWorkTypeEnabled>
+  <FreeWillWorkTypeDisabled>Click to enable FreeWill for this job (automatic priorities)</FreeWillWorkTypeDisabled>
+  
+  <!-- Per-Pawn Focus -->
+  <FreeWillToggleRightClickFocus>Right-click to set pawn focus</FreeWillToggleRightClickFocus>
+  <FreeWillPawnFocusTitle>Focus Mode: {0}</FreeWillPawnFocusTitle>
+  <FreeWillPawnFocusSet>{0} is now focusing on {1}!</FreeWillPawnFocusSet>
+  <FreeWillPawnFocusCleared>{0}'s focus cleared.</FreeWillPawnFocusCleared>
+
+
   <!-- Mod ITab -->
   <FreeWillITab>Free will</FreeWillITab>
   <FreeWillITabCheckbox>Free will</FreeWillITabCheckbox>
@@ -146,5 +189,4 @@
   <FreeWillPriorityNoReaction>no allergic symptoms from</FreeWillPriorityNoReaction>
   <FreeWillPriorityNoFreeWill>no free will</FreeWillPriorityNoFreeWill>
   <FreeWillPriorityColonyPolicy>colony policy</FreeWillPriorityColonyPolicy>
-
 </LanguageData>

@@ -22,6 +22,7 @@ namespace FreeWill
         private const float ConsiderOwnRoomDefault = 1.0f;
         private const float ConsiderPlantsBlightedDefault = 1.0f;
         private const float ConsiderGauranlenPruningDefault = 1.0f;
+        private const int TickIntervalDefault = 4;
 
         public bool ConsiderBrawlersNotHunting = ConsiderBrawlersNotHuntingDefault;
         public bool ConsiderHasHuntingWeapon = ConsiderHasHuntingWeaponDefault;
@@ -35,6 +36,7 @@ namespace FreeWill
         public float ConsiderOwnRoom = ConsiderOwnRoomDefault;
         public float ConsiderPlantsBlighted = ConsiderPlantsBlightedDefault;
         public float ConsiderGauranlenPruning = ConsiderGauranlenPruningDefault;
+        public int TickInterval = TickIntervalDefault;
 
         public Dictionary<string, float> globalWorkAdjustments;
 
@@ -74,6 +76,21 @@ namespace FreeWill
             view.height = 9999.0f;
             ls.Begin(new Rect(10, 10, view.width - 40, view.height - 10));
             ls.Gap(30.0f);
+
+            // Performance Settings Section
+            ls.Label("FreeWillPerformanceSettings".TranslateSimple());
+            ls.GapLine(10.0f);
+
+            string tickLabel = "FreeWillTickInterval".TranslateSimple();
+            string tickValue = string.Format("{0}", TickInterval);
+            string tickTip = "FreeWillTickIntervalLong".TranslateSimple();
+            ls.LabelDouble(tickLabel, tickValue, tip: tickTip);
+            TickInterval = Mathf.RoundToInt(ls.Slider(TickInterval, 1, 60));
+            if (ls.ButtonText("FreeWillDefaultSliderButtonLabel".TranslateSimple()))
+            {
+                TickInterval = TickIntervalDefault;
+            }
+            ls.GapLine(30.0f);
             string s1 = "FreeWillConsiderMovementSpeed".TranslateSimple();
             string s2 = string.Format("{0}x", ConsiderMovementSpeed);
             string s3 = "FreeWillConsiderMovementSpeedLong".TranslateSimple();
@@ -236,6 +253,7 @@ namespace FreeWill
             Scribe_Values.Look(ref ConsiderHasHuntingWeapon, "freeWillHuntingWeapon", ConsiderHasHuntingWeaponDefault, true);
             Scribe_Values.Look(ref ConsiderPlantsBlighted, "freeWillPlantsBlighted", ConsiderPlantsBlightedDefault, true);
             Scribe_Values.Look(ref ConsiderGauranlenPruning, "freeWillGauranlenPruning", ConsiderGauranlenPruningDefault, true);
+            Scribe_Values.Look(ref TickInterval, "freeWillTickInterval", TickIntervalDefault, true);
             if (globalWorkAdjustments == null)
             {
                 globalWorkAdjustments = new Dictionary<string, float>();

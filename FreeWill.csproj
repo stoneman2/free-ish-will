@@ -28,6 +28,14 @@
     <Compile Include="Priority.cs" />
     <Compile Include="DependencyInterfaces.cs" />
     <Compile Include="DependencyProviders.cs" />
+    <Compile Include="PawnFocusData.cs" />
+    <Compile Include="FreeWillResources.cs" />
+    <Compile Include="Patches\MainTabWindow_WorkPatch.cs" />
+    <Compile Include="Patches\DefGeneratorPatch.cs" />
+    <Compile Include="Patches\WorkTypeHeaderPatch.cs" />
+    <Compile Include="PawnColumnWorkers\FreeWillToggle.cs" />
+    <Compile Include="Dialogs\Dialog_GlobalFocus.cs" />
+    <Compile Include="Dialogs\Dialog_PawnFocus.cs" />
     <Compile Include="Strategies\IWorkTypeStrategy.cs" />
     <Compile Include="Strategies\BaseWorkTypeStrategy.cs" />
     <Compile Include="Strategies\WorkTypeStrategyRegistry.cs" />

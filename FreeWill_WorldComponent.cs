@@ -28,6 +28,12 @@ namespace FreeWill
         private bool checkedForInterestsMod;
         public List<string> interestsStrings;
 
+        // Focus system data
+        internal Dictionary<string, PawnFocusData> pawnFocuses;
+        private PawnFocusData globalFocus;
+        public int MaxPawnsForFocusedWork = 0;
+        public HashSet<string> DisabledWorkTypes;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="FreeWill_WorldComponent"/> class.
         /// </summary>
@@ -45,6 +51,11 @@ namespace FreeWill
 
             checkedForInterestsMod = false;
             interestsStrings = new List<string> { };
+            
+            // Initialize focus system
+            pawnFocuses = new Dictionary<string, PawnFocusData>();
+            globalFocus = null;
+            DisabledWorkTypes = new HashSet<string>();
         }
 
         /// <summary>
@@ -400,6 +411,107 @@ namespace FreeWill
             return false;
         }
 
+        // ==================== FOCUS SYSTEM ====================
+
+        /// <summary>
+        /// Gets the global focus if active, null otherwise.
+        /// </summary>
+        public PawnFocusData GlobalFocus => globalFocus;
+
+        /// <summary>
+        /// Gets the active focus for a specific pawn (global takes priority).
+        /// </summary>
+        public PawnFocusData GetFocusForPawn(Pawn pawn)
+        {
+            // Global focus takes priority
+            if (globalFocus != null) return globalFocus;
+            
+            // Check per-pawn focus
+            string pawnKey = pawn.GetUniqueLoadID();
+            if (pawnFocuses != null && pawnFocuses.TryGetValue(pawnKey, out var data))
+            {
+                return data;
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Sets a global focus that affects all pawns.
+        /// </summary>
+        public void SetGlobalFocus(WorkTypeDef workType, float intensity, float defocusMultiplier, int maxPawns)
+        {
+            globalFocus = new PawnFocusData
+            {
+                WorkType = workType,
+                Intensity = intensity,
+                DefocusMultiplier = defocusMultiplier
+            };
+            MaxPawnsForFocusedWork = maxPawns;
+        }
+
+        /// <summary>
+        /// Clears the global focus.
+        /// </summary>
+        public void ClearGlobalFocus()
+        {
+            globalFocus = null;
+            MaxPawnsForFocusedWork = 0;
+        }
+
+        /// <summary>
+        /// Sets a focus for a specific pawn.
+        /// </summary>
+        public void SetPawnFocus(Pawn pawn, WorkTypeDef workType, float intensity, float defocusMultiplier)
+        {
+            pawnFocuses = pawnFocuses ?? new Dictionary<string, PawnFocusData>();
+            string pawnKey = pawn.GetUniqueLoadID();
+            pawnFocuses[pawnKey] = new PawnFocusData
+            {
+                WorkType = workType,
+                Intensity = intensity,
+                DefocusMultiplier = defocusMultiplier
+            };
+        }
+
+        /// <summary>
+        /// Clears focus for a specific pawn.
+        /// </summary>
+        public void ClearPawnFocus(Pawn pawn)
+        {
+            if (pawnFocuses == null) return;
+            string pawnKey = pawn.GetUniqueLoadID();
+            pawnFocuses.Remove(pawnKey);
+        }
+
+        /// <summary>
+        /// Checks if a work type is disabled from FreeWill management.
+        /// </summary>
+        public bool IsWorkTypeDisabled(WorkTypeDef workType)
+        {
+            if (workType == null) return false;
+            DisabledWorkTypes = DisabledWorkTypes ?? new HashSet<string>();
+            bool isDisabled = DisabledWorkTypes.Contains(workType.defName);
+            return isDisabled;
+        }
+
+        /// <summary>
+        /// Toggles whether a work type is managed by FreeWill.
+        /// </summary>
+        public void ToggleWorkTypeEnabled(WorkTypeDef workType)
+        {
+            if (workType == null) return;
+            DisabledWorkTypes = DisabledWorkTypes ?? new HashSet<string>();
+            
+            if (DisabledWorkTypes.Contains(workType.defName))
+            {
+                DisabledWorkTypes.Remove(workType.defName);
+            }
+            else
+            {
+                DisabledWorkTypes.Add(workType.defName);
+            }
+        }
+
         /// <summary>
         /// Saves and loads the component's persistent data.
         /// </summary>
@@ -408,6 +520,29 @@ namespace FreeWill
             base.ExposeData();
             Scribe_Collections.Look(ref freePawns, "FreeWillFreePawns", LookMode.Value, LookMode.Value);
             Scribe_Collections.Look(ref freeWillOverride, "FreeWillFreeWillOverride", LookMode.Value, LookMode.Value);
+            
+            Scribe_Deep.Look(ref globalFocus, "FreeWillGlobalFocus");
+            Scribe_Values.Look(ref MaxPawnsForFocusedWork, "FreeWillMaxPawnsForFocusedWork", 0);
+            
+            string disabledStr = null;
+            if (Scribe.mode == LoadSaveMode.Saving)
+            {
+                disabledStr = DisabledWorkTypes != null && DisabledWorkTypes.Count > 0 
+                    ? string.Join(",", DisabledWorkTypes) 
+                    : "";
+            }
+            Scribe_Values.Look(ref disabledStr, "FreeWillDisabledWorkTypes", "");
+            if (Scribe.mode == LoadSaveMode.LoadingVars && !string.IsNullOrEmpty(disabledStr))
+            {
+                DisabledWorkTypes = new HashSet<string>(disabledStr.Split(','));
+            }
+            
+            // Ensure collections are initialized after loading
+            if (Scribe.mode == LoadSaveMode.PostLoadInit)
+            {
+                pawnFocuses = pawnFocuses ?? new Dictionary<string, PawnFocusData>();
+                DisabledWorkTypes = DisabledWorkTypes ?? new HashSet<string>();
+            }
         }
     }
 }

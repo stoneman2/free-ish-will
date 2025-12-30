@@ -293,6 +293,13 @@ namespace FreeWill
                     }
                     return;
                 }
+                
+                // skip work types that are off
+                var worldComp = Find.World?.GetComponent<FreeWill_WorldComponent>();
+                if (worldComp != null && worldComp.IsWorkTypeDisabled(WorkTypeDef))
+                {
+                    return;
+                }
 
                 if (!Current.Game.playSettings.useWorkPriorities)
                 {
@@ -2262,6 +2269,58 @@ namespace FreeWill
         private bool EnsureMapStateProvider()
         {
             return mapStateProvider != null;
+        }
+
+        /// <summary>
+        /// Applies focus mode modifiers. Boosts focused work types
+        /// and reduces priority of all other work types.
+        /// </summary>
+        public Priority ConsiderFocusMode()
+        {
+            try
+            {
+                if (worldStateProvider == null)
+                {
+                    return this;
+                }
+
+                // Get focus data for this pawn from world component
+                var worldComp = Find.World?.GetComponent<FreeWill_WorldComponent>();
+                if (worldComp == null)
+                {
+                    return this;
+                }
+
+                var focusData = worldComp.GetFocusForPawn(pawn);
+                if (focusData?.WorkType == null)
+                {
+                    return this;
+                }
+
+                float intensity = focusData.Intensity;
+                float defocus = focusData.DefocusMultiplier;
+                
+                if (WorkTypeDef == focusData.WorkType)
+                {
+                    return Multiply(intensity, () => $"Focused ({intensity:F1}x)");
+                }
+                else
+                {
+                    if (defocus < 0.01f)
+                    {
+                        return NeverDo(() => "Focus elsewhere (disabled)");
+                    }
+                    return Multiply(defocus, () => $"Focus elsewhere ({defocus:P0})");
+                }
+            }
+            catch (Exception ex)
+            {
+                if (Prefs.DevMode)
+                {
+                    Log.Error($"Free Will: could not consider focus mode: {ex.Message}");
+                }
+                return this;
+            }
         }
 
         /// <summary>

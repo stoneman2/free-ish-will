@@ -23,7 +23,8 @@ namespace FreeWill
             _ = priority.ConsiderColonistsNeedingTreatment()
                 .ConsiderDownedColonists()
                 .ConsiderOperation()
-                .ConsiderColonyPolicy();
+                .ConsiderColonyPolicy()
+                .ConsiderFocusMode();
             return priority;
         }
     }

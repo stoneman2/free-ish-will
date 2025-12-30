@@ -1,13 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ModMetaData>
-  <name>Free Will</name>
-  <author>Paul Freeman</author>
-  <packageId>freemapa.freewill</packageId>
-  <url>https://github.com/paul-freeman/rimworld-freewill</url>
+  <name>Free-ish Will</name>
+  <author>Stoneman</author>
+  <packageId>stoneman.freewill</packageId>
   <supportedVersions>
     <li>1.6</li>
   </supportedVersions>
-  <description>Colonists can now have free will! Adds a precept that influences how willing colonists are to do what they're told.</description>
+  <description>Colonists can now have free will! Adds a precept that influences how willing colonists are to do what they're told.
+  Now with better performance and slightly less free will!
+  </description>
   <modDependencies>
     <li>
       <packageId>Ludeon.RimWorld.Ideology</packageId>

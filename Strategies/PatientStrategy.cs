@@ -21,7 +21,8 @@ namespace FreeWill
                 .ConsiderColonistsNeedingTreatment()
                 .ConsiderDownedColonists()
                 .ConsiderOperation()
-                .ConsiderColonyPolicy();
+                .ConsiderColonyPolicy()
+                .ConsiderFocusMode();
         }
     }
 }

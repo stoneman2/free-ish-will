@@ -32,6 +32,9 @@ namespace FreeWill
         private readonly FieldInfo activeAlertsField;
         private FreeWill_WorldComponent worldComp;
 
+        private int throttleCounter = 0;
+        private readonly FreeWill_Mod mod;
+
         public List<Pawn> PawnsInFaction { get; private set; }
         public int NumPawns => map.mapPawns.FreeColonistsSpawnedCount;
 
@@ -73,6 +76,7 @@ namespace FreeWill
             priorities = new Dictionary<Pawn, Dictionary<WorkTypeDef, Priority>> { };
             lastBored = new Dictionary<Pawn, int> { };
             activeAlertsField = AccessTools.Field(typeof(AlertsReadout), "AllAlerts");
+            mod = LoadedModManager.GetMod<FreeWill_Mod>();
         }
 
         /// <summary>
@@ -91,6 +95,14 @@ namespace FreeWill
         {
             base.MapComponentTick();
             FreeWillUtility.UpdateMapComponent(this);
+
+            int tickInterval = mod?.GetSettings<FreeWill_ModSettings>()?.TickInterval ?? 4;
+            throttleCounter++;
+            if (throttleCounter < tickInterval)
+            {
+                return;
+            }
+            throttleCounter = 0;
 
             try
             {
@@ -278,6 +290,14 @@ namespace FreeWill
             }
             return priorities[pawn][workTypeDef];
         }
+        public void ForceRefresh()
+        {
+            actionCounter = 0;
+            throttleCounter = 0;      
+            priorities.Clear();
+            pawnIndexCache = "unknown";
+        }
+        
         private string SetPriorityAction(Pawn pawn, string pawnKey, WorkTypeDef workTypeDef)
         {
             string msg = (pawn?.Name?.ToStringShort ?? "unknown pawn") + " " + (workTypeDef?.defName ?? "unknown work");
