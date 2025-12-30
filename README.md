@@ -1,3 +1,29 @@
+# Free-ish Will
+All credits to the original creator of the Free Will mod.
+This fork adds numerous changes to the Free Will mod, adding features that I deem fun, not really going for the original mod's vision, really.
+I've brought it more in line with other auto-work management mods.
+
+## Performance
+The original mod recalculates everyone's work priorities and modifiers EVERY tick, which I think is quite ridiculous. With this, I've added tick throttling.
+Work calculations now happens in intervals of ticks based on your settings (Default 4).
+This has improved the performance of the mod by upwards of 80 - 90%.
+## Before
+<img width="1164" height="249" alt="image" src="https://github.com/user-attachments/assets/f3549283-60f4-41f1-aec7-f220e7ace7ff" />
+
+## After
+<img width="1258" height="351" alt="image" src="https://github.com/user-attachments/assets/c345087a-6b80-49e8-8756-554ae8e7e386" />
+
+
+## Features
+- Added the mod setting's button right to the work menu.
+- Added a button to refresh the current work calculation.
+- Added global focusing. You can make all your pawns focus on one type of work specifically.
+- Added pawn focusing. You can make each one of your pawns focus on one type of work specifically.
+- Added the ability to turn off pawn's free will directly in the work menu. (Where the original mod had you select them to open a menu, and then turn them off..)
+- Added the ability to turn off one specific's work from being free-willable.
+
+
+# Original Mod Description
 # Free Will
 
 Colonists have free will! Adds a precept that influences how willing colonists are to do what they're told.
