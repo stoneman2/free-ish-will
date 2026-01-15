@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reflection;
 using HarmonyLib;
 using RimWorld;
+using UnityEngine;
 using Verse;
 using Verse.AI;
 
@@ -66,6 +67,19 @@ namespace FreeWill
         public List<WorkTypeDef> DisabledWorkTypes = new List<WorkTypeDef>();
 
         private int actionCounter = 0;
+
+        private int deterioratingTicks = 0;
+        private Thing lastDeterioratingThing = null;
+        private int refuelTicks = 0;
+        private int lowFoodTicks = 0;
+        private int blightTicks = 0;
+        private int fireTicks = 0;
+        private int unburiedTicks = 0;
+
+        private const float MAX_URGENCY = 0.4f;
+        private const float MIN_URGENCY = 0.05f;
+        private const int DECAY_START = 2500;
+        private const float DECAY_RATE = 0.0001f;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FreeWill_MapComponent"/> class.
@@ -157,16 +171,41 @@ namespace FreeWill
                         _ = CheckThingsDeteriorating();
                         break;
                     case "checkBlight":
+                        bool wasBlighted = PlantsBlighted;
                         PlantsBlighted = CheckBlight();
+                        if (PlantsBlighted)
+                            blightTicks += 250;
+                        else
+                            blightTicks = 0;
                         break;
                     case "checkMapFire":
+                        int prevFires = MapFires;
                         _ = CheckMapFire();
+                        if (MapFires > 0)
+                            fireTicks += 250;
+                        else
+                            fireTicks = 0;
                         break;
                     case "checkRefuelNeeded":
+                        bool wasRefuelNeeded = RefuelNeeded || RefuelNeededNow;
                         _ = CheckRefuelNeeded();
+                        if (RefuelNeeded || RefuelNeededNow)
+                            refuelTicks += 250;
+                        else
+                            refuelTicks = 0;
                         break;
                     case "checkActiveAlerts":
+                        bool wasLowFood = AlertLowFood;
+                        bool wasUnburied = AlertColonistLeftUnburied;
                         _ = CheckActiveAlerts();
+                        if (AlertLowFood)
+                            lowFoodTicks += 250;
+                        else
+                            lowFoodTicks = 0;
+                        if (AlertColonistLeftUnburied)
+                            unburiedTicks += 250;
+                        else
+                            unburiedTicks = 0;
                         break;
                     case "checkSuppressionNeed":
                         _ = CheckSuppressionNeed();
@@ -516,10 +555,13 @@ namespace FreeWill
 
         private string CheckThingsDeteriorating()
         {
+            Thing previousItem = ThingsDeteriorating;
             ThingsDeteriorating = null;
             ICollection<Thing> thingsPotentiallyNeedingHauling = map?.listerHaulables?.ThingsPotentiallyNeedingHauling();
             if (thingsPotentiallyNeedingHauling == null)
             {
+                deterioratingTicks = 0;
+                lastDeterioratingThing = null;
                 return "checkThingsDeteriorating";
             }
             foreach (Thing thing in thingsPotentiallyNeedingHauling)
@@ -537,9 +579,76 @@ namespace FreeWill
                     continue;
                 }
                 ThingsDeteriorating = thing;
+
+                if (thing == lastDeterioratingThing)
+                {
+                    deterioratingTicks += 250;
+                }
+                else
+                {
+                    deterioratingTicks = 0;
+                    lastDeterioratingThing = thing;
+                }
                 return "checkThingsDeteriorating";
             }
+            
+            deterioratingTicks = 0;
+            lastDeterioratingThing = null;
             return "checkThingsDeteriorating";
+        }
+
+        public float GetDeterioratingUrgency()
+        {
+            if (ThingsDeteriorating == null)
+                return 0f;
+            
+            float decay = Mathf.Max(0, (deterioratingTicks - DECAY_START) * DECAY_RATE);
+            return Mathf.Max(MIN_URGENCY, MAX_URGENCY - decay);
+        }
+
+        public float GetBlightUrgency()
+        {
+            if (!PlantsBlighted)
+                return 0f;
+            
+            float decay = Mathf.Max(0, (blightTicks - DECAY_START) * DECAY_RATE);
+            return Mathf.Max(MIN_URGENCY, MAX_URGENCY - decay);
+        }
+
+        public float GetRefuelUrgency()
+        {
+            if (!RefuelNeeded && !RefuelNeededNow)
+                return 0f;
+            
+            float decay = Mathf.Max(0, (refuelTicks - DECAY_START) * DECAY_RATE);
+            return Mathf.Max(MIN_URGENCY, MAX_URGENCY - decay);
+        }
+
+        public float GetLowFoodUrgency()
+        {
+            if (!AlertLowFood)
+                return 0f;
+            
+            float decay = Mathf.Max(0, (lowFoodTicks - DECAY_START) * DECAY_RATE);
+            return Mathf.Max(MIN_URGENCY, MAX_URGENCY - decay);
+        }
+
+        public float GetFireUrgency()
+        {
+            if (MapFires <= 0)
+                return 0f;
+            
+            float decay = Mathf.Max(0, (fireTicks - DECAY_START) * DECAY_RATE);
+            return Mathf.Max(MIN_URGENCY, MAX_URGENCY - decay);
+        }
+
+        public float GetUnburiedUrgency()
+        {
+            if (!AlertColonistLeftUnburied)
+                return 0f;
+            
+            float decay = Mathf.Max(0, (unburiedTicks - DECAY_START) * DECAY_RATE);
+            return Mathf.Max(MIN_URGENCY, MAX_URGENCY - decay);
         }
 
         private bool CheckBlight()

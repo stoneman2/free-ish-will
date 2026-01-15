@@ -25,6 +25,13 @@ namespace FreeWill
         private const float ConsiderGauranlenPruningDefault = 1.0f;
         private const int TickIntervalDefault = 4;
         
+        private const bool UseDecayDeteriorationDefault = true;
+        private const bool UseDecayRefuelDefault = true;
+        private const bool UseDecayLowFoodDefault = true;
+        private const bool UseDecayBlightDefault = true;
+        private const bool UseDecayFireDefault = false;
+        private const bool UseDecayUnburiedDefault = true;
+        
         public bool ConsiderIdeology = ConsiderIdeologyDefault;
         public bool ConsiderBrawlersNotHunting = ConsiderBrawlersNotHuntingDefault;
         public bool ConsiderHasHuntingWeapon = ConsiderHasHuntingWeaponDefault;
@@ -39,6 +46,14 @@ namespace FreeWill
         public float ConsiderPlantsBlighted = ConsiderPlantsBlightedDefault;
         public float ConsiderGauranlenPruning = ConsiderGauranlenPruningDefault;
         public int TickInterval = TickIntervalDefault;
+        
+        // Per-modifier decay settings
+        public bool UseDecayDeterioration = UseDecayDeteriorationDefault;
+        public bool UseDecayRefuel = UseDecayRefuelDefault;
+        public bool UseDecayLowFood = UseDecayLowFoodDefault;
+        public bool UseDecayBlight = UseDecayBlightDefault;
+        public bool UseDecayFire = UseDecayFireDefault;
+        public bool UseDecayUnburied = UseDecayUnburiedDefault;
 
         public Dictionary<string, float> globalWorkAdjustments;
         public Dictionary<string, int> globalWorkCaps;
@@ -118,6 +133,13 @@ namespace FreeWill
             {
                 TickInterval = TickIntervalDefault;
             }
+            ls.Gap(10.0f);
+            ls.CheckboxLabeled("FreeWillUseDecayDeterioration".TranslateSimple(), ref UseDecayDeterioration, "FreeWillUseDecayDeteriorationLong".TranslateSimple());
+            ls.CheckboxLabeled("FreeWillUseDecayRefuel".TranslateSimple(), ref UseDecayRefuel, "FreeWillUseDecayRefuelLong".TranslateSimple());
+            ls.CheckboxLabeled("FreeWillUseDecayLowFood".TranslateSimple(), ref UseDecayLowFood, "FreeWillUseDecayLowFoodLong".TranslateSimple());
+            ls.CheckboxLabeled("FreeWillUseDecayBlight".TranslateSimple(), ref UseDecayBlight, "FreeWillUseDecayBlightLong".TranslateSimple());
+            ls.CheckboxLabeled("FreeWillUseDecayFire".TranslateSimple(), ref UseDecayFire, "FreeWillUseDecayFireLong".TranslateSimple());
+            ls.CheckboxLabeled("FreeWillUseDecayUnburied".TranslateSimple(), ref UseDecayUnburied, "FreeWillUseDecayUnburiedLong".TranslateSimple());
             ls.GapLine(30.0f);
 
             DrawFactorSlider(ls, ref ConsiderMovementSpeed, "FreeWillConsiderMovementSpeed", ConsiderMovementSpeedDefault);
@@ -252,6 +274,12 @@ namespace FreeWill
             Scribe_Values.Look(ref ConsiderPlantsBlighted, "freeWillPlantsBlighted", ConsiderPlantsBlightedDefault, true);
             Scribe_Values.Look(ref ConsiderGauranlenPruning, "freeWillGauranlenPruning", ConsiderGauranlenPruningDefault, true);
             Scribe_Values.Look(ref TickInterval, "freeWillTickInterval", TickIntervalDefault, true);
+            Scribe_Values.Look(ref UseDecayDeterioration, "freeWillUseDecayDeterioration", UseDecayDeteriorationDefault, true);
+            Scribe_Values.Look(ref UseDecayRefuel, "freeWillUseDecayRefuel", UseDecayRefuelDefault, true);
+            Scribe_Values.Look(ref UseDecayLowFood, "freeWillUseDecayLowFood", UseDecayLowFoodDefault, true);
+            Scribe_Values.Look(ref UseDecayBlight, "freeWillUseDecayBlight", UseDecayBlightDefault, true);
+            Scribe_Values.Look(ref UseDecayFire, "freeWillUseDecayFire", UseDecayFireDefault, true);
+            Scribe_Values.Look(ref UseDecayUnburied, "freeWillUseDecayUnburied", UseDecayUnburiedDefault, true);
             if (globalWorkAdjustments == null)
             {
                 globalWorkAdjustments = new Dictionary<string, float>();

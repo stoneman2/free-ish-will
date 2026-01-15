@@ -774,7 +774,10 @@ namespace FreeWill
                 }
                 if (mapStateProvider.AlertColonistLeftUnburied && (WorkTypeDef.defName == HAULING || WorkTypeDef.defName == HAULING_URGENT))
                 {
-                    Add(EMERGENCY_ADJUSTMENT, "FreeWillPriorityColonistLeftUnburied".TranslateSimple);
+                    bool useDecay = worldStateProvider?.Settings?.UseDecayUnburied ?? false;
+                    float urgency = useDecay ? mapStateProvider.GetUnburiedUrgency() : EMERGENCY_ADJUSTMENT;
+                    if (urgency > 0f)
+                        Add(urgency, "FreeWillPriorityColonistLeftUnburied".TranslateSimple);
                     return this;
                 }
                 return this;
@@ -1123,14 +1126,21 @@ namespace FreeWill
                 {
                     return this;
                 }
+                
+                bool useDecay = worldStateProvider?.Settings?.UseDecayRefuel ?? false;
+                
                 if (mapStateProvider.RefuelNeededNow)
                 {
-                    Add(REFUELING_HIGH_PRIORITY, "FreeWillPriorityRefueling".TranslateSimple);
+                    float urgency = useDecay ? mapStateProvider.GetRefuelUrgency() : REFUELING_HIGH_PRIORITY;
+                    if (urgency > 0f)
+                        Add(urgency, "FreeWillPriorityRefueling".TranslateSimple);
                     return this;
                 }
                 if (mapStateProvider.RefuelNeeded)
                 {
-                    Add(REFUELING_NORMAL_PRIORITY, "FreeWillPriorityRefueling".TranslateSimple);
+                    float urgency = useDecay ? mapStateProvider.GetRefuelUrgency() : REFUELING_NORMAL_PRIORITY;
+                    if (urgency > 0f)
+                        Add(urgency, "FreeWillPriorityRefueling".TranslateSimple);
                     return this;
                 }
                 return this;
@@ -1153,6 +1163,8 @@ namespace FreeWill
                     return this;
                 }
 
+                bool useDecay = worldStateProvider?.Settings?.UseDecayFire ?? false;
+
                 if (WorkTypeDef.defName != FIREFIGHTER)
                 {
                     if (mapStateProvider.HomeFire)
@@ -1160,21 +1172,20 @@ namespace FreeWill
                         Add(FIRE_PENALTY, "FreeWillPriorityFireInHomeArea".TranslateSimple);
                         return this;
                     }
-                    if (mapStateProvider.MapFires > 0 && WorkTypeDef.defName == FIREFIGHTER)
-                    {
-                        Add(Mathf.Clamp01(mapStateProvider.MapFires * FIRE_PRIORITY_PER_FIRE), "FreeWillPriorityFireOnMap".TranslateSimple);
-                        return this;
-                    }
                     return this;
                 }
+                // Firefighter work type
                 if (mapStateProvider.HomeFire)
                 {
                     Set(MAXIMUM_PRIORITY, "FreeWillPriorityFireInHomeArea".TranslateSimple);
                     return this;
                 }
-                if (mapStateProvider.MapFires > 0 && WorkTypeDef.defName == FIREFIGHTER)
+                if (mapStateProvider.MapFires > 0)
                 {
-                    Add(Mathf.Clamp01(mapStateProvider.MapFires * FIRE_PRIORITY_PER_FIRE), "FreeWillPriorityFireOnMap".TranslateSimple);
+                    float urgency = useDecay ? mapStateProvider.GetFireUrgency() : 
+                                    Mathf.Clamp01(mapStateProvider.MapFires * FIRE_PRIORITY_PER_FIRE);
+                    if (urgency > 0f)
+                        Add(urgency, "FreeWillPriorityFireOnMap".TranslateSimple);
                     return this;
                 }
                 return this;
@@ -1883,7 +1894,11 @@ namespace FreeWill
                 // don't adjust hauling if nothing deteriorating (i.e. food in the field)
                 if ((WorkTypeDef.defName != HAULING && WorkTypeDef.defName != HAULING_URGENT) || mapStateProvider.ThingsDeteriorating != null)
                 {
-                    Add(adjustment * worldStateProvider.Settings.ConsiderLowFood, "FreeWillPriorityLowFood".TranslateSimple);
+                    bool useDecay = worldStateProvider?.Settings?.UseDecayLowFood ?? false;
+                    float urgency = useDecay ? mapStateProvider.GetLowFoodUrgency() : 
+                                    adjustment * worldStateProvider.Settings.ConsiderLowFood;
+                    if (urgency > 0f)
+                        Add(urgency, "FreeWillPriorityLowFood".TranslateSimple);
                     return this;
                 }
                 return this;
@@ -1961,11 +1976,14 @@ namespace FreeWill
                 }
                 if (WorkTypeDef.defName == HAULING || WorkTypeDef.defName == HAULING_URGENT)
                 {
-                    if (mapStateProvider.ThingsDeteriorating != null)
+                    bool useDecay = worldStateProvider?.Settings?.UseDecayDeterioration ?? false;
+                    float urgency = useDecay ? mapStateProvider.GetDeterioratingUrgency() : 
+                                    (mapStateProvider.ThingsDeteriorating != null ? DETERIORATING_BONUS : 0f);
+                    if (urgency > 0f)
                     {
                         if (Prefs.DevMode)
                         {
-                            string name = mapStateProvider.ThingsDeteriorating.def.defName;
+                            string name = mapStateProvider.ThingsDeteriorating?.def?.defName ?? "unknown";
                             string adjustmentString()
                             {
                                 return new StringBuilder()
@@ -1974,9 +1992,9 @@ namespace FreeWill
                                     .Append(name)
                                     .ToString();
                             }
-                            return Add(DETERIORATING_BONUS, adjustmentString);
+                            return Add(urgency, adjustmentString);
                         }
-                        return Add(DETERIORATING_BONUS, "FreeWillPriorityThingsDeteriorating".TranslateSimple);
+                        return Add(urgency, "FreeWillPriorityThingsDeteriorating".TranslateSimple);
                     }
                 }
                 return this;
@@ -2006,8 +2024,14 @@ namespace FreeWill
                 }
                 if (mapStateProvider.PlantsBlighted)
                 {
-                    Add(0.4f * worldStateProvider.Settings.ConsiderPlantsBlighted, "FreeWillPriorityBlight".TranslateSimple);
-                    return this;
+                    bool useDecay = worldStateProvider?.Settings?.UseDecayBlight ?? false;
+                    float urgency = useDecay ? mapStateProvider.GetBlightUrgency() : 
+                                    (0.4f * worldStateProvider.Settings.ConsiderPlantsBlighted);
+                    if (urgency > 0f)
+                    {
+                        Add(urgency, "FreeWillPriorityBlight".TranslateSimple);
+                        return this;
+                    }
                 }
                 return this;
             }

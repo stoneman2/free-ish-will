@@ -54,6 +54,36 @@ namespace FreeWill
         public bool AreaHasHaulables => mapComponent.AreaHasHaulables;
         public bool AreaHasFilth => mapComponent.AreaHasFilth;
 
+        public float GetDeterioratingUrgency()
+        {
+            return mapComponent.GetDeterioratingUrgency();
+        }
+
+        public float GetBlightUrgency()
+        {
+            return mapComponent.GetBlightUrgency();
+        }
+
+        public float GetRefuelUrgency()
+        {
+            return mapComponent.GetRefuelUrgency();
+        }
+
+        public float GetLowFoodUrgency()
+        {
+            return mapComponent.GetLowFoodUrgency();
+        }
+
+        public float GetFireUrgency()
+        {
+            return mapComponent.GetFireUrgency();
+        }
+
+        public float GetUnburiedUrgency()
+        {
+            return mapComponent.GetUnburiedUrgency();
+        }
+
         public int? GetLastBored(Pawn pawn)
         {
             return mapComponent.GetLastBored(pawn);

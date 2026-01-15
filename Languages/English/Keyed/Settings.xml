@@ -71,6 +71,25 @@
   <FreeWillConsiderIdeology>Enable Ideology</FreeWillConsiderIdeology>
   <FreeWillConsiderIdeologyLong>Enable ideology integration, where their beliefs affects if you can turn on free will on them. This requires a restart.</FreeWillConsiderIdeologyLong>
 
+
+  <FreeWillUseDecayDeterioration>Decay: Deterioration</FreeWillUseDecayDeterioration>
+  <FreeWillUseDecayDeteriorationLong>Unreachable deteriorating items will have their priority boost decay over time.</FreeWillUseDecayDeteriorationLong>
+  
+  <FreeWillUseDecayRefuel>Decay: Refueling</FreeWillUseDecayRefuel>
+  <FreeWillUseDecayRefuelLong>Unreachable refueling targets will have their priority boost decay over time.</FreeWillUseDecayRefuelLong>
+  
+  <FreeWillUseDecayLowFood>Decay: Low Food</FreeWillUseDecayLowFood>
+  <FreeWillUseDecayLowFoodLong>Persistent low food situations will have their priority boost decay over time.</FreeWillUseDecayLowFoodLong>
+  
+  <FreeWillUseDecayBlight>Decay: Blight</FreeWillUseDecayBlight>
+  <FreeWillUseDecayBlightLong>Unreachable blight will have its priority boost decay over time.</FreeWillUseDecayBlightLong>
+  
+  <FreeWillUseDecayFire>Decay: Fire</FreeWillUseDecayFire>
+  <FreeWillUseDecayFireLong>Unreachable fires will have their priority boost decay over time.</FreeWillUseDecayFireLong>
+  
+  <FreeWillUseDecayUnburied>Decay: Unburied</FreeWillUseDecayUnburied>
+  <FreeWillUseDecayUnburiedLong>Unreachable unburied colonists will have their priority boost decay over time.</FreeWillUseDecayUnburiedLong>
+
   <!-- Considerations-->
   <FreeWillConsiderMovementSpeed>Consider movement speed</FreeWillConsiderMovementSpeed>
   <FreeWillConsiderMovementSpeedLong>Colonists perfer work that suits their movement speed.</FreeWillConsiderMovementSpeedLong>

@@ -126,6 +126,36 @@ namespace FreeWill
         Thing ThingsDeteriorating { get; }
 
         /// <summary>
+        /// Gets the urgency for deteriorating items.
+        /// </summary>
+        float GetDeterioratingUrgency();
+
+        /// <summary>
+        /// Gets the urgency for blight.
+        /// </summary>
+        float GetBlightUrgency();
+
+        /// <summary>
+        /// Gets the urgency for refueling.
+        /// </summary>
+        float GetRefuelUrgency();
+
+        /// <summary>
+        /// Gets the urgency for low food.
+        /// </summary>
+        float GetLowFoodUrgency();
+
+        /// <summary>
+        /// Gets the urgency for fire.
+        /// </summary>
+        float GetFireUrgency();
+
+        /// <summary>
+        /// Gets the urgency for unburied colonists.
+        /// </summary>
+        float GetUnburiedUrgency();
+
+        /// <summary>
         /// Gets whether plants are blighted on the map.
         /// </summary>
         bool PlantsBlighted { get; }
