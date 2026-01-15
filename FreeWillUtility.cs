@@ -16,22 +16,22 @@ namespace FreeWill
 
         public static FreeWill_WorldComponent GetWorldComponent()
         {
-            return worldComp ?? Find.World.GetComponent<FreeWill_WorldComponent>();
+            return worldComp ?? Find.World?.GetComponent<FreeWill_WorldComponent>();
         }
 
         public static FreeWill_MapComponent GetMapComponent()
         {
-            return mapComp ?? Find.CurrentMap.GetComponent<FreeWill_MapComponent>();
+            return mapComp ?? Find.CurrentMap?.GetComponent<FreeWill_MapComponent>();
         }
 
         public static void UpdateWorldComponent(FreeWill_WorldComponent newWorldComp)
         {
-            worldComp = newWorldComp ?? Find.World.GetComponent<FreeWill_WorldComponent>();
+            worldComp = newWorldComp ?? Find.World?.GetComponent<FreeWill_WorldComponent>();
         }
 
         public static void UpdateMapComponent(FreeWill_MapComponent newMapComp)
         {
-            mapComp = newMapComp ?? Find.CurrentMap.GetComponent<FreeWill_MapComponent>();
+            mapComp = newMapComp ?? Find.CurrentMap?.GetComponent<FreeWill_MapComponent>();
         }
 
         public static void DoCell(Rect rect, Pawn pawn, PawnTable _, PawnColumnWorker_WorkPriority __instance)

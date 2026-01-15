@@ -8,8 +8,8 @@ public class ThoughtWorker_Precept_EnforcedWorkSchedule : ThoughtWorker_Precept
     {
         if (pawn.IsColonistPlayerControlled || pawn.IsSlaveOfColony)
         {
-            FreeWill_WorldComponent worldComp = Find.World.GetComponent<FreeWill_WorldComponent>();
-            if (!worldComp.Settings.ConsiderIdeology)
+            FreeWill_WorldComponent worldComp = Find.World?.GetComponent<FreeWill_WorldComponent>();
+            if (worldComp == null || !worldComp.Settings.ConsiderIdeology)
             {
                 return ThoughtState.Inactive;
             }

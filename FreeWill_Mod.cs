@@ -88,8 +88,8 @@ namespace FreeWill
             {
                 return;
             }
-            FreeWill_WorldComponent worldComp = Find.World.GetComponent<FreeWill_WorldComponent>();
-            if (!worldComp.HasFreeWill(___pawn, ___pawn.GetUniqueLoadID()))
+            FreeWill_WorldComponent worldComp = Find.World?.GetComponent<FreeWill_WorldComponent>();
+            if (worldComp == null || !worldComp.HasFreeWill(___pawn, ___pawn.GetUniqueLoadID()))
             {
                 return;
             }

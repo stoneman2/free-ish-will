@@ -13,9 +13,9 @@ public class ThoughtWorker_Precept_FreeWillStreak : ThoughtWorker_Precept
         }
         if (worldComp == null)
         {
-            worldComp = Find.World.GetComponent<FreeWill_WorldComponent>();
+            worldComp = Find.World?.GetComponent<FreeWill_WorldComponent>();
         }
-        if (!worldComp.Settings.ConsiderIdeology)
+        if (worldComp == null || !worldComp.Settings.ConsiderIdeology)
         {
             return ThoughtState.Inactive;
         }
