@@ -9,6 +9,12 @@
   <FreeWillResetGlobalSlidersButtonLabel>Reset global sliders</FreeWillResetGlobalSlidersButtonLabel>
   <FreeWillResetGlobalSlidersLabel>Reset all global overrides to zero</FreeWillResetGlobalSlidersLabel>
 
+  <!-- Tabs -->
+  <FreeWillSettingsGeneral>General</FreeWillSettingsGeneral>
+  <FreeWillSettingsPriorities>Priorities</FreeWillSettingsPriorities>
+  <FreeWillSettingsPrioritiesDescription>Global Work Type Limits and Adjustments</FreeWillSettingsPrioritiesDescription>
+  <FreeWillPriorityCap>Max Priority</FreeWillPriorityCap>
+
   <!-- Performance Settings -->
   <FreeWillPerformanceSettings>Performance Settings</FreeWillPerformanceSettings>
   <FreeWillTickInterval>Update interval (ticks)</FreeWillTickInterval>

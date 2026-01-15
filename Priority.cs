@@ -14,9 +14,9 @@ namespace FreeWill
      /// </summary>
     public class Priority : IComparable
     {
-        private const int DISABLED_CUTOFF = 100 / (Pawn_WorkSettings.LowestPriority + 1); // 20 if LowestPriority is 4
-        private const int DISABLED_CUTOFF_ACTIVE_WORK_AREA = 100 - DISABLED_CUTOFF; // 80 if LowestPriority is 4
-        private const float ONE_PRIORITY_WIDTH = DISABLED_CUTOFF_ACTIVE_WORK_AREA / (float)Pawn_WorkSettings.LowestPriority; // ~20 if LowestPriority is 4
+        private const int DISABLED_CUTOFF = 10;
+        private const int DISABLED_CUTOFF_ACTIVE_WORK_AREA = 100 - DISABLED_CUTOFF; // 90
+        private const float ONE_PRIORITY_WIDTH = DISABLED_CUTOFF_ACTIVE_WORK_AREA / (float)Pawn_WorkSettings.LowestPriority; // ~22.5
 
         // Priority calculation constants
         private const int PERCENTAGE_CALCULATION_BASE = 100;
@@ -42,11 +42,12 @@ namespace FreeWill
         private const float MECH_REPAIR_BONUS = 0.6f;
 
         // Multipliers for specific situations
-        private const float CURRENT_WORK_MULTIPLIER = 1.8f;
-        private const float BEST_AT_DOING_MULTIPLIER = 1.5f;
-        private const float DETERIORATING_MULTIPLIER = 2.0f;
-        private const float PRUNING_MULTIPLIER = 2.0f;
-        private const float OWN_ROOM_MULTIPLIER = 2.0f;
+        // Redesign: Converted to Additive Bonuses
+        private const float CURRENT_WORK_BONUS = 0.2f;
+        private const float BEST_AT_DOING_BONUS = 0.6f;
+        private const float DETERIORATING_BONUS = 0.4f;
+        private const float PRUNING_BONUS = 0.5f;
+        private const float OWN_ROOM_BONUS = 0.3f;
 
         // Mood and thought adjustments
         private const float MAJOR_MOOD_ADJUSTMENT = -0.01f;
@@ -54,8 +55,8 @@ namespace FreeWill
         private const float POSITIVE_MOOD_ADJUSTMENT = 0.005f;
 
         // Passion and skill constants
-        private const float MINOR_PASSION_EFFECT = 0.25f;
-        private const float MAJOR_PASSION_EFFECT = 0.5f;
+        private const float MINOR_PASSION_EFFECT = 0.15f;
+        private const float MAJOR_PASSION_EFFECT = 0.3f;
         private const float INJURED_ADJUSTMENT = 0.5f;
 
         // Skill comparison thresholds
@@ -357,6 +358,15 @@ namespace FreeWill
                 gamePriorityValue = Mathf.Clamp(gamePriorityValue, 1, Pawn_WorkSettings.LowestPriority);
             }
 
+            // Apply User-Defined Caps
+            if (worldStateProvider?.Settings?.globalWorkCaps != null)
+            {
+                if (worldStateProvider.Settings.globalWorkCaps.TryGetValue(WorkTypeDef.defName, out int cap) && cap > 0)
+                {
+                    gamePriorityValue = Mathf.Max(gamePriorityValue, cap);
+                }
+            }
+
             return gamePriorityValue;
         }
 
@@ -449,11 +459,11 @@ namespace FreeWill
             }
         }
 
-        public void Add(float x, Func<string> description)
+        public Priority Add(float x, Func<string> description)
         {
             if (Disabled)
             {
-                return;
+                return this;
             }
             float newValue = Mathf.Clamp01(Value + x);
             if (newValue > Value)
@@ -501,7 +511,7 @@ namespace FreeWill
                 AdjustmentStrings.Add(adjustmentString);
                 Value = newValue;
             }
-            return;
+            return this;
         }
 
         public Priority Multiply(float x, Func<string> description)
@@ -792,7 +802,7 @@ namespace FreeWill
                 if (pawn.mindState.IsIdle)
                 {
                     mapStateProvider?.UpdateLastBored(pawn);
-                    return AlwaysDoIf(pawn.mindState.IsIdle, () => "FreeWillPriorityBored".TranslateSimple());
+                    return Add(0.2f, () => "FreeWillPriorityBored".TranslateSimple());
                 }
                 if (!EnsureMapStateProvider())
                 {
@@ -800,7 +810,7 @@ namespace FreeWill
                 }
                 int? lastBored = mapStateProvider.GetLastBored(pawn);
                 bool wasBored = lastBored != 0 && Find.TickManager.TicksGame - lastBored < boredomMemory;
-                return AlwaysDoIf(wasBored, () => "FreeWillPriorityWasBored".TranslateSimple());
+                return wasBored ? Add(0.1f, () => "FreeWillPriorityWasBored".TranslateSimple()) : this;
             }, "consider bored");
         }
 
@@ -831,7 +841,7 @@ namespace FreeWill
                 // pawns prefer the work they are current doing
                 return pawn.CurJob?.workGiverDef?.workType == WorkTypeDef
                     ? AlwaysDo("FreeWillPriorityCurrentlyDoing".TranslateSimple)
-                        .Multiply(CURRENT_WORK_MULTIPLIER, "FreeWillPriorityCurrentlyDoing".TranslateSimple)
+                        .Add(CURRENT_WORK_BONUS, "FreeWillPriorityCurrentlyDoing".TranslateSimple)
                     : this;
             }
             catch (Exception ex)
@@ -873,9 +883,7 @@ namespace FreeWill
                     return this;
                 }
                 float _carryingCapacity = pawn.GetStatValue(StatDefOf.CarryingCapacity, true);
-                return _carryingCapacity >= _baseCarryingCapacity
-                    ? this
-                    : Multiply(_carryingCapacity / _baseCarryingCapacity, "FreeWillPriorityCarryingCapacity".TranslateSimple);
+                return Add(0.2f * ((_carryingCapacity - _baseCarryingCapacity) / _baseCarryingCapacity), "FreeWillPriorityCarryingCapacity".TranslateSimple);
             }
             catch (Exception ex)
             {
@@ -1506,7 +1514,7 @@ namespace FreeWill
                         break;
                     }
                 }
-                return !isPawnsRoom ? this : Multiply(worldStateProvider.Settings.ConsiderOwnRoom * 2.0f, "FreeWillPriorityOwnRoom".TranslateSimple);
+                return !isPawnsRoom ? this : Add(OWN_ROOM_BONUS * worldStateProvider.Settings.ConsiderOwnRoom, "FreeWillPriorityOwnRoom".TranslateSimple);
             }
             catch (Exception ex)
             {
@@ -1645,7 +1653,7 @@ namespace FreeWill
             ApplySkillBasedAdjustments(comparisonData);
 
             return comparisonData.IsBestAtDoing
-                ? Multiply(1.5f * worldStateProvider.Settings.ConsiderBestAtDoing, "FreeWillPriorityBestAtDoing".TranslateSimple)
+                ? Add(BEST_AT_DOING_BONUS * worldStateProvider.Settings.ConsiderBestAtDoing, "FreeWillPriorityBestAtDoing".TranslateSimple)
                 : this;
         }
         private List<Pawn> GetEligiblePawns()
@@ -1966,9 +1974,9 @@ namespace FreeWill
                                     .Append(name)
                                     .ToString();
                             }
-                            return Multiply(2.0f, adjustmentString);
+                            return Add(DETERIORATING_BONUS, adjustmentString);
                         }
-                        return Multiply(2.0f, "FreeWillPriorityThingsDeteriorating".TranslateSimple);
+                        return Add(DETERIORATING_BONUS, "FreeWillPriorityThingsDeteriorating".TranslateSimple);
                     }
                 }
                 return this;
@@ -2191,50 +2199,50 @@ namespace FreeWill
                 {
                     if (averageSkill >= excellentSkillCutoff)
                     {
-                        Add(0.9f, description);
+                        Add(1.0f, description);
                         return this;
                     }
                     if (averageSkill >= greatSkillCutoff)
                     {
-                        Add(0.7f, description);
+                        Add(0.8f, description);
                         return this;
                     }
                     if (averageSkill >= goodSkillCutoff)
                     {
-                        Add(0.5f, description);
+                        Add(0.6f, description);
                         return this;
                     }
                     if (averageSkill >= badSkillCutoff)
                     {
-                        Add(0.3f, description);
+                        Add(0.4f, description);
                         return this;
                     }
-                    Add(0.1f, description);
+                    Add(0.2f, description);
                     return this;
                 }
 
                 // if not adding, just set the priority
                 if (averageSkill >= excellentSkillCutoff)
                 {
-                    Set(0.9f, description);
+                    Set(1.0f, description);
                     return this;
                 }
                 if (averageSkill >= greatSkillCutoff)
                 {
-                    Set(0.7f, description);
+                    Set(0.8f, description);
                     return this;
                 }
                 if (averageSkill >= goodSkillCutoff)
                 {
-                    Set(0.5f, description);
+                    Set(0.6f, description);
                     return this;
                 }
                 if (averageSkill >= badSkillCutoff)
                 {
-                    Set(0.3f, description);
+                    Set(0.4f, description);
                     return this;
                 }
-                Set(0.1f, description);
+                Set(0.2f, description);
                 return this;
             }
             catch

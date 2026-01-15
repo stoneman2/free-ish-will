@@ -16,7 +16,7 @@ namespace FreeWill
         private const float ConsiderMovementSpeedDefault = 1.0f;
         private const float ConsiderPassionsDefault = 1.0f;
         private const float ConsiderBeautyDefault = 1.0f;
-        private const float ConsiderBestAtDoingDefault = 0.0f;
+        private const float ConsiderBestAtDoingDefault = 1.0f;
         private const float ConsiderFoodPoisoningDefault = 1.0f;
         private const float ConsiderLowFoodDefault = 1.0f;
         private const float ConsiderWeaponRangeDefault = 1.0f;
@@ -41,6 +41,12 @@ namespace FreeWill
         public int TickInterval = TickIntervalDefault;
 
         public Dictionary<string, float> globalWorkAdjustments;
+        public Dictionary<string, int> globalWorkCaps;
+
+        private const int TAB_GENERAL = 0;
+        private const int TAB_WORK_PRIORITIES = 1;
+        private static int currentTab = TAB_GENERAL;
+
 
         private Vector2 pos;
         private float height;
@@ -61,28 +67,45 @@ namespace FreeWill
         /// <param name="inRect">Area to draw within.</param>
         public void DoSettingsWindowContents(Rect inRect)
         {
-            if (globalWorkAdjustments == null)
-            {
-                globalWorkAdjustments = new Dictionary<string, float>();
-            }
-            if (pos == null)
-            {
-                pos = Vector2.zero;
-            }
-            Rect view = new Rect(15.0f, 0, inRect.width - 30.0f, inRect.height);
-            Listing_Standard ls = new Listing_Standard();
-            List<WorkTypeDef> workTypes = DefDatabase<WorkTypeDef>.AllDefsListForReading;
-            view.height = height;
-            Widgets.BeginScrollView(inRect, ref pos, view);
-            GUI.BeginGroup(view);
-            view.height = 9999.0f;
-            ls.Begin(new Rect(10, 10, view.width - 40, view.height - 10));
-            ls.Gap(30.0f);
+            if (globalWorkAdjustments == null) globalWorkAdjustments = new Dictionary<string, float>();
+            if (globalWorkCaps == null) globalWorkCaps = new Dictionary<string, int>();
 
-            // Performance Settings Section
+            float tabPadding = 15f;
+            Rect tabRect = new Rect(inRect.x, inRect.y + tabPadding, inRect.width, 35f);
+            List<TabRecord> tabs = new List<TabRecord>();
+            tabs.Add(new TabRecord("FreeWillSettingsGeneral".TranslateSimple(), () => { currentTab = TAB_GENERAL; pos = Vector2.zero; }, currentTab == TAB_GENERAL));
+            tabs.Add(new TabRecord("FreeWillSettingsPriorities".TranslateSimple(), () => { currentTab = TAB_WORK_PRIORITIES; pos = Vector2.zero; }, currentTab == TAB_WORK_PRIORITIES));
+            TabDrawer.DrawTabs(tabRect, tabs);
+
+            Rect contentRect = new Rect(inRect.x, inRect.y + tabPadding + 45f, inRect.width, inRect.height - tabPadding - 45f);
+            
+            Rect viewRect = new Rect(0f, 0f, contentRect.width - 20f, Mathf.Max(height, 1000f));
+            
+            Widgets.BeginScrollView(contentRect, ref pos, viewRect);
+            
+            Listing_Standard ls = new Listing_Standard();
+            ls.Begin(new Rect(0f, 0f, viewRect.width - 16f, 99999f));
+
+            if (currentTab == TAB_GENERAL)
+            {
+                DrawGeneralSettings(ls);
+            }
+            else if (currentTab == TAB_WORK_PRIORITIES)
+            {
+                DrawPrioritySettings(ls);
+            }
+
+            height = ls.CurHeight + 50f;
+
+            ls.End();
+            Widgets.EndScrollView();
+        }
+
+        private void DrawGeneralSettings(Listing_Standard ls)
+        {
+            ls.Gap(10.0f);
             ls.Label("FreeWillPerformanceSettings".TranslateSimple());
             ls.GapLine(10.0f);
-
             ls.CheckboxLabeled("FreeWillConsiderIdeology".TranslateSimple(), ref ConsiderIdeology, "FreeWillConsiderIdeologyLong".TranslateSimple());
             ls.Gap(10.0f);
 
@@ -96,149 +119,118 @@ namespace FreeWill
                 TickInterval = TickIntervalDefault;
             }
             ls.GapLine(30.0f);
-            string s1 = "FreeWillConsiderMovementSpeed".TranslateSimple();
-            string s2 = string.Format("{0}x", ConsiderMovementSpeed);
-            string s3 = "FreeWillConsiderMovementSpeedLong".TranslateSimple();
-            ls.LabelDouble(s1, s2, tip: s3);
-            ConsiderMovementSpeed = Mathf.RoundToInt(ls.Slider(ConsiderMovementSpeed, 0.0f, 10.0f) * 10.0f) / 10.0f;
-            if (ls.ButtonText("FreeWillDefaultSliderButtonLabel".TranslateSimple()))
-            {
-                ConsiderMovementSpeed = ConsiderMovementSpeedDefault;
-            }
-            ls.GapLine(30.0f);
 
-            s1 = "FreeWillConsiderPassions".TranslateSimple();
-            s2 = string.Format("{0}x", ConsiderPassions);
-            s3 = "FreeWillConsiderPassionsLong".TranslateSimple();
-            ls.LabelDouble(s1, s2, tip: s3);
-            ConsiderPassions = Mathf.RoundToInt(ls.Slider(ConsiderPassions, 0.0f, 10.0f) * 10.0f) / 10.0f;
-            if (ls.ButtonText("FreeWillDefaultSliderButtonLabel".TranslateSimple()))
-            {
-                ConsiderPassions = ConsiderPassionsDefault;
-            }
-            ls.GapLine(30.0f);
-
-            s1 = "FreeWillConsiderBeauty".TranslateSimple();
-            s2 = string.Format("{0}x", ConsiderBeauty);
-            s3 = "FreeWillConsiderBeautyLong".TranslateSimple();
-            ls.LabelDouble(s1, s2, tip: s3);
-            ConsiderBeauty = Mathf.RoundToInt(ls.Slider(ConsiderBeauty, 0.0f, 10.0f) * 10.0f) / 10.0f;
-            if (ls.ButtonText("FreeWillDefaultSliderButtonLabel".TranslateSimple()))
-            {
-                ConsiderBeauty = ConsiderBeautyDefault;
-            }
-            ls.GapLine(30.0f);
-
-            s1 = "FreeWillConsiderBestAtDoing".TranslateSimple();
-            s2 = string.Format("{0}x", ConsiderBestAtDoing);
-            s3 = "FreeWillConsiderBestAtDoingLong".TranslateSimple();
-            ls.LabelDouble(s1, s2, tip: s3);
-            ConsiderBestAtDoing = Mathf.RoundToInt(ls.Slider(ConsiderBestAtDoing, 0.0f, 10.0f) * 10.0f) / 10.0f;
-            if (ls.ButtonText("FreeWillDefaultSliderButtonLabel".TranslateSimple()))
-            {
-                ConsiderBestAtDoing = ConsiderBestAtDoingDefault;
-            }
-            ls.GapLine(30.0f);
-
-            s1 = "FreeWillConsiderLowFood".TranslateSimple();
-            s2 = string.Format("{0}x", ConsiderLowFood);
-            s3 = "FreeWillConsiderLowFoodLong".TranslateSimple();
-            ls.LabelDouble(s1, s2, tip: s3);
-            ConsiderLowFood = Mathf.RoundToInt(ls.Slider(ConsiderLowFood, 0.0f, 10.0f) * 10.0f) / 10.0f;
-            if (ls.ButtonText("FreeWillDefaultSliderButtonLabel".TranslateSimple()))
-            {
-                ConsiderLowFood = ConsiderLowFoodDefault;
-            }
-            ls.GapLine(30.0f);
-
-            s1 = "FreeWillConsiderWeaponRange".TranslateSimple();
-            s2 = string.Format("{0}x", ConsiderWeaponRange);
-            s3 = "FreeWillConsiderWeaponRangeLong".TranslateSimple();
-            ls.LabelDouble(s1, s2, tip: s3);
-            ConsiderWeaponRange = Mathf.RoundToInt(ls.Slider(ConsiderWeaponRange, 0.0f, 10.0f) * 10.0f) / 10.0f;
-            if (ls.ButtonText("FreeWillDefaultSliderButtonLabel".TranslateSimple()))
-            {
-                ConsiderWeaponRange = ConsiderWeaponRangeDefault;
-            }
-            ls.GapLine(30.0f);
-
-            s1 = "FreeWillConsiderFoodPoisoning".TranslateSimple();
-            s2 = string.Format("{0}x", ConsiderFoodPoisoning);
-            s3 = "FreeWillConsiderFoodPoisoningLong".TranslateSimple();
-            ls.LabelDouble(s1, s2, tip: s3);
-            ConsiderFoodPoisoning = Mathf.RoundToInt(ls.Slider(ConsiderFoodPoisoning, 0.0f, 10.0f) * 10.0f) / 10.0f;
-            if (ls.ButtonText("FreeWillDefaultSliderButtonLabel".TranslateSimple()))
-            {
-                ConsiderFoodPoisoning = ConsiderFoodPoisoningDefault;
-            }
-            ls.GapLine(30.0f);
-
-            s1 = "FreeWillConsiderOwnRoom".TranslateSimple();
-            s2 = string.Format("{0}x", ConsiderOwnRoom);
-            s3 = "FreeWillConsiderOwnRoomLong".TranslateSimple();
-            ls.LabelDouble(s1, s2, tip: s3);
-            ConsiderOwnRoom = Mathf.RoundToInt(ls.Slider(ConsiderOwnRoom, 0.0f, 10.0f) * 10.0f) / 10.0f;
-            if (ls.ButtonText("FreeWillDefaultSliderButtonLabel".TranslateSimple()))
-            {
-                ConsiderOwnRoom = ConsiderOwnRoomDefault;
-            }
-            ls.GapLine(30.0f);
-
-            s1 = "FreeWillConsiderPlantsBlighted".TranslateSimple();
-            s2 = string.Format("{0}x", ConsiderPlantsBlighted);
-            s3 = "FreeWillConsiderPlantsBlightedLong".TranslateSimple();
-            ls.LabelDouble(s1, s2, tip: s3);
-            ConsiderPlantsBlighted = Mathf.RoundToInt(ls.Slider(ConsiderPlantsBlighted, 0.0f, 10.0f) * 10.0f) / 10.0f;
-            if (ls.ButtonText("FreeWillDefaultSliderButtonLabel".TranslateSimple()))
-            {
-                ConsiderPlantsBlighted = ConsiderPlantsBlightedDefault;
-            }
-            ls.GapLine(30.0f);
-
-            s1 = "FreeWillConsiderGauranlenPruning".TranslateSimple();
-            s2 = string.Format("{0}x", ConsiderGauranlenPruning);
-            s3 = "FreeWillConsiderGauranlenPruningLong".TranslateSimple();
-            ls.LabelDouble(s1, s2, tip: s3);
-            ConsiderGauranlenPruning = Mathf.RoundToInt(ls.Slider(ConsiderGauranlenPruning, 0.0f, 10.0f) * 10.0f) / 10.0f;
-            if (ls.ButtonText("FreeWillDefaultSliderButtonLabel".TranslateSimple()))
-            {
-                ConsiderGauranlenPruning = ConsiderGauranlenPruningDefault;
-            }
-            ls.GapLine(30.0f);
-
+            DrawFactorSlider(ls, ref ConsiderMovementSpeed, "FreeWillConsiderMovementSpeed", ConsiderMovementSpeedDefault);
+            DrawFactorSlider(ls, ref ConsiderPassions, "FreeWillConsiderPassions", ConsiderPassionsDefault);
+            DrawFactorSlider(ls, ref ConsiderBeauty, "FreeWillConsiderBeauty", ConsiderBeautyDefault);
+            DrawFactorSlider(ls, ref ConsiderBestAtDoing, "FreeWillConsiderBestAtDoing", ConsiderBestAtDoingDefault);
+            DrawFactorSlider(ls, ref ConsiderLowFood, "FreeWillConsiderLowFood", ConsiderLowFoodDefault);
+            DrawFactorSlider(ls, ref ConsiderWeaponRange, "FreeWillConsiderWeaponRange", ConsiderWeaponRangeDefault);
+            DrawFactorSlider(ls, ref ConsiderFoodPoisoning, "FreeWillConsiderFoodPoisoning", ConsiderFoodPoisoningDefault);
+            DrawFactorSlider(ls, ref ConsiderOwnRoom, "FreeWillConsiderOwnRoom", ConsiderOwnRoomDefault);
+            DrawFactorSlider(ls, ref ConsiderPlantsBlighted, "FreeWillConsiderPlantsBlighted", ConsiderPlantsBlightedDefault);
+            DrawFactorSlider(ls, ref ConsiderGauranlenPruning, "FreeWillConsiderGauranlenPruning", ConsiderGauranlenPruningDefault);
+            
             ls.CheckboxLabeled("FreeWillConsiderHasHuntingWeapon".TranslateSimple(), ref ConsiderHasHuntingWeapon, "FreeWillConsiderHasHuntingWeaponLong".TranslateSimple());
-            ls.Gap(20.0f);
+            ls.Gap(10.0f);
             ls.CheckboxLabeled("FreeWillConsiderBrawlersNotHunting".TranslateSimple(), ref ConsiderBrawlersNotHunting, "FreeWillConsiderBrawlersNotHuntingLong".TranslateSimple());
+        }
 
-            // draw sliders for each work type
-            ls.GapLine(60.0f);
-            foreach (WorkTypeDef workTypeDef in workTypes)
-            {
-                _ = globalWorkAdjustments.TryGetValue(workTypeDef.defName, out float v);
-                s1 = string.Format("{0} {1}", "FreeWillWorkTypeAdjustment".TranslateSimple(), workTypeDef.labelShort);
-                s2 = string.Format("{0}%", Mathf.RoundToInt(v * 100.0f));
-                ls.LabelDouble(s1, s2, tip: workTypeDef.description);
-                globalWorkAdjustments.SetOrAdd(
-                    workTypeDef.defName,
-                    Mathf.RoundToInt(ls.Slider(v, -1.0f, 1.0f) * 100.0f) / 100.0f
-                );
-                ls.Gap();
-            }
+        private void DrawPrioritySettings(Listing_Standard ls)
+        {
+            List<WorkTypeDef> workTypes = DefDatabase<WorkTypeDef>.AllDefsListForReading;
+            
+            ls.Label("FreeWillSettingsPrioritiesDescription".TranslateSimple());
+            ls.GapLine();
 
-            // slider reset button
+            // Reset Button
             if (ls.ButtonTextLabeled("FreeWillResetGlobalSlidersLabel".TranslateSimple(), "FreeWillResetGlobalSlidersButtonLabel".TranslateSimple()))
             {
                 foreach (WorkTypeDef workTypeDef in workTypes)
                 {
                     globalWorkAdjustments.SetOrAdd(workTypeDef.defName, 0f);
+                    globalWorkCaps.SetOrAdd(workTypeDef.defName, 0);
                 }
             }
+            ls.Gap(20f);
 
-            ls.GapLine(40.0f);
-            height = ls.GetRect(0).yMax + 20.0f;
-            ls.End();
-            GUI.EndGroup();
-            Widgets.EndScrollView();
+            foreach (WorkTypeDef workTypeDef in workTypes)
+            {
+                // Adjustment Slider
+                _ = globalWorkAdjustments.TryGetValue(workTypeDef.defName, out float adj);
+                string s1 = string.Format("{0} {1}", "FreeWillWorkTypeAdjustment".TranslateSimple(), workTypeDef.labelShort);
+                string s2 = string.Format("{0}%", Mathf.RoundToInt(adj * 100.0f));
+                ls.LabelDouble(s1, s2, tip: workTypeDef.description);
+                globalWorkAdjustments.SetOrAdd(
+                    workTypeDef.defName,
+                    Mathf.RoundToInt(ls.Slider(adj, -1.0f, 1.0f) * 100.0f) / 100.0f
+                );
+
+                // Priority Cap - use simple clickable number boxes
+                _ = globalWorkCaps.TryGetValue(workTypeDef.defName, out int cap);
+
+                Rect capRow = ls.GetRect(24f);
+                float labelWidth = 90f;
+                float boxSize = 28f;
+                float spacing = 4f;
+                
+                // Label
+                Text.Anchor = TextAnchor.MiddleLeft;
+                Widgets.Label(new Rect(capRow.x, capRow.y, labelWidth, capRow.height), "FreeWillPriorityCap".TranslateSimple() + ":");
+                
+                float boxX = capRow.x + labelWidth + 10f;
+                
+                // Helper to draw a selectable box
+                void DrawCapBox(int value, string label)
+                {
+                    Rect box = new Rect(boxX, capRow.y, boxSize, capRow.height);
+                    bool isSelected = (cap == value);
+                    
+                    // Draw background
+                    if (isSelected)
+                        Widgets.DrawBoxSolid(box, new Color(0.2f, 0.6f, 0.2f, 0.8f)); // Green for selected
+                    else
+                        Widgets.DrawBoxSolid(box, new Color(0.15f, 0.15f, 0.15f, 0.8f)); // Dark gray
+                    
+                    // Draw border
+                    Widgets.DrawBox(box);
+                    
+                    // Draw label centered
+                    Text.Anchor = TextAnchor.MiddleCenter;
+                    Widgets.Label(box, label);
+                    
+                    // Handle click
+                    if (Widgets.ButtonInvisible(box))
+                        cap = value;
+                    
+                    boxX += boxSize + spacing;
+                }
+                
+                DrawCapBox(0, "-");  // No cap (dash means "no limit")
+                DrawCapBox(1, "1");
+                DrawCapBox(2, "2");
+                DrawCapBox(3, "3");
+                DrawCapBox(4, "4");
+                
+                Text.Anchor = TextAnchor.UpperLeft; // Reset
+
+                globalWorkCaps.SetOrAdd(workTypeDef.defName, cap);
+                ls.Gap(8f);
+            }
+        }
+
+        private void DrawFactorSlider(Listing_Standard ls, ref float setting, string key, float defaultValue)
+        {
+            string s1 = key.TranslateSimple();
+            string s2 = string.Format("{0}x", setting);
+            string s3 = (key + "Long").TranslateSimple();
+            ls.LabelDouble(s1, s2, tip: s3);
+            setting = Mathf.RoundToInt(ls.Slider(setting, 0.0f, 10.0f) * 10.0f) / 10.0f;
+            if (ls.ButtonText("FreeWillDefaultSliderButtonLabel".TranslateSimple()))
+            {
+                setting = defaultValue;
+            }
+            ls.Gap(10f);
         }
 
         /// <summary>
@@ -265,6 +257,7 @@ namespace FreeWill
                 globalWorkAdjustments = new Dictionary<string, float>();
             }
             Scribe_Collections.Look(ref globalWorkAdjustments, "freeWillWorkTypeAdjustments", LookMode.Value, LookMode.Value);
+            Scribe_Collections.Look(ref globalWorkCaps, "freeWillWorkTypeCaps", LookMode.Value, LookMode.Value);
             base.ExposeData();
         }
     }

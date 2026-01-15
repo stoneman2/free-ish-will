@@ -532,6 +532,10 @@ namespace FreeWill
                 {
                     continue;
                 }
+                if (thing.MarketValue * thing.stackCount < 10.0f)
+                {
+                    continue;
+                }
                 ThingsDeteriorating = thing;
                 return "checkThingsDeteriorating";
             }
