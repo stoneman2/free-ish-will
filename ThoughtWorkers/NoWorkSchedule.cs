@@ -9,6 +9,10 @@ public class ThoughtWorker_Precept_NoWorkSchedule : ThoughtWorker_Precept
         if (pawn.IsColonistPlayerControlled || pawn.IsSlaveOfColony)
         {
             FreeWill_WorldComponent worldComp = Find.World.GetComponent<FreeWill_WorldComponent>();
+            if (!worldComp.Settings.ConsiderIdeology)
+            {
+                return ThoughtState.Inactive;
+            }
             // free pawns should have this thought
             return worldComp.HasFreeWill(pawn, pawn.GetUniqueLoadID()) ? ThoughtState.ActiveDefault : ThoughtState.Inactive;
         }

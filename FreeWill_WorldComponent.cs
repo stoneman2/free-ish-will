@@ -68,7 +68,8 @@ namespace FreeWill
                 // add Free Will ideology if an ideo doesn't have it
                 foreach (Ideo ideo in Find.IdeoManager.IdeosListForReading)
                 {
-                    if (!ideo.HasPrecept(freeWillProhibited)
+                    if (Settings.ConsiderIdeology
+                            && !ideo.HasPrecept(freeWillProhibited)
                             && !ideo.HasPrecept(freeWillDisapproved)
                             && !ideo.HasPrecept(freeWillFlexible)
                             && !ideo.HasPrecept(freeWillPreferred)
@@ -112,12 +113,12 @@ namespace FreeWill
             if (pawn?.Ideo == null ||
                 !pawn.IsColonistPlayerControlled ||
                 pawn.IsSlaveOfColony ||
-                pawn.Ideo.HasPrecept(freeWillProhibited)
+                (Settings.ConsiderIdeology && pawn.Ideo.HasPrecept(freeWillProhibited))
             )
             {
                 return false;
             }
-            if (pawn.Ideo.HasPrecept(freeWillMandatory))
+            if (Settings.ConsiderIdeology && pawn.Ideo.HasPrecept(freeWillMandatory))
             {
                 return true;
             }
@@ -125,7 +126,7 @@ namespace FreeWill
             freePawns = freePawns ?? new Dictionary<string, bool> { };
             if (!freePawns.ContainsKey(pawnKey))
             {
-                if (pawn.Ideo.HasPrecept(freeWillDisapproved) || pawn.Ideo.HasPrecept(freeWillProhibited))
+                if (Settings.ConsiderIdeology && (pawn.Ideo.HasPrecept(freeWillDisapproved) || pawn.Ideo.HasPrecept(freeWillProhibited)))
                 {
                     freePawns[pawnKey] = false;
                     return false;
@@ -161,7 +162,7 @@ namespace FreeWill
                 {
                     return false;
                 }
-                bool canChange = !pawn.Ideo.HasPrecept(freeWillMandatory) && !pawn.Ideo.HasPrecept(freeWillProhibited);
+                bool canChange = !Settings.ConsiderIdeology || (!pawn.Ideo.HasPrecept(freeWillMandatory) && !pawn.Ideo.HasPrecept(freeWillProhibited));
                 if (!canChange)
                 {
                     EnsureFreeWillStatusIsCorrect(pawn, pawnKey);
@@ -194,7 +195,7 @@ namespace FreeWill
                     return;
                 }
                 // ensure it is set correctly
-                if (pawn.Ideo.HasPrecept(freeWillMandatory) && !HasFreeWill(pawn, pawnKey))
+                if (Settings.ConsiderIdeology && pawn.Ideo.HasPrecept(freeWillMandatory) && !HasFreeWill(pawn, pawnKey))
                 {
                     bool ok = TryGiveFreeWill(pawn);
                     if (!ok)
@@ -203,7 +204,7 @@ namespace FreeWill
                         return;
                     }
                 }
-                else if (pawn.Ideo.HasPrecept(freeWillProhibited) && HasFreeWill(pawn, pawnKey))
+                else if (Settings.ConsiderIdeology && pawn.Ideo.HasPrecept(freeWillProhibited) && HasFreeWill(pawn, pawnKey))
                 {
                     bool ok = TryRemoveFreeWill(pawn);
                     if (!ok)
@@ -233,7 +234,11 @@ namespace FreeWill
             {
                 return false;
             }
-            if (pawn.Ideo.HasPrecept(freeWillProhibited))
+            if (pawn?.Ideo == null)
+            {
+                return false;
+            }
+            if (Settings.ConsiderIdeology && pawn.Ideo.HasPrecept(freeWillProhibited))
             {
                 return false;
             }
@@ -253,7 +258,7 @@ namespace FreeWill
             {
                 return false;
             }
-            if (!pawn.IsSlaveOfColony && pawn.Ideo.HasPrecept(freeWillMandatory))
+            if (!pawn.IsSlaveOfColony && Settings.ConsiderIdeology && pawn.Ideo.HasPrecept(freeWillMandatory))
             {
                 return false;
             }

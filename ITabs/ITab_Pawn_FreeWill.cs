@@ -230,7 +230,7 @@ namespace FreeWill
                     {
                         tip = "FreeWillITabWorkScheduleCanChange".Translate(pawn.NameShortColored);
                     }
-                    else
+                    else if (worldComp.Settings.ConsiderIdeology)
                     {
                         if (isFree)
                         {
@@ -242,6 +242,10 @@ namespace FreeWill
                             // free will prohibited - work schedule mandatory
                             tip = "FreeWillITabWorkScheduleMandatory".Translate(pawn.NameShortColored, pawn.Ideo.MemberNamePlural.CapitalizeFirst()).CapitalizeFirst();
                         }
+                    }
+                    else
+                    {
+                        tip = "FreeWillITabWorkScheduleCanChange".Translate(pawn.NameShortColored);
                     }
 
                     TooltipHandler.TipRegion(rect, tip);

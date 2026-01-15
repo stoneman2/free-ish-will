@@ -10,6 +10,7 @@ namespace FreeWill
     public class FreeWill_ModSettings : ModSettings
     {
         // mod default settings
+        private const bool ConsiderIdeologyDefault = true;
         private const bool ConsiderBrawlersNotHuntingDefault = true;
         private const bool ConsiderHasHuntingWeaponDefault = true;
         private const float ConsiderMovementSpeedDefault = 1.0f;
@@ -23,7 +24,8 @@ namespace FreeWill
         private const float ConsiderPlantsBlightedDefault = 1.0f;
         private const float ConsiderGauranlenPruningDefault = 1.0f;
         private const int TickIntervalDefault = 4;
-
+        
+        public bool ConsiderIdeology = ConsiderIdeologyDefault;
         public bool ConsiderBrawlersNotHunting = ConsiderBrawlersNotHuntingDefault;
         public bool ConsiderHasHuntingWeapon = ConsiderHasHuntingWeaponDefault;
         public float ConsiderMovementSpeed = ConsiderMovementSpeedDefault;
@@ -80,6 +82,9 @@ namespace FreeWill
             // Performance Settings Section
             ls.Label("FreeWillPerformanceSettings".TranslateSimple());
             ls.GapLine(10.0f);
+
+            ls.CheckboxLabeled("FreeWillConsiderIdeology".TranslateSimple(), ref ConsiderIdeology, "FreeWillConsiderIdeologyLong".TranslateSimple());
+            ls.Gap(10.0f);
 
             string tickLabel = "FreeWillTickInterval".TranslateSimple();
             string tickValue = string.Format("{0}", TickInterval);
@@ -241,6 +246,7 @@ namespace FreeWill
         /// </summary>
         public override void ExposeData()
         {
+            Scribe_Values.Look(ref ConsiderIdeology, "freeWillConsiderIdeology", ConsiderIdeologyDefault, true);
             Scribe_Values.Look(ref ConsiderMovementSpeed, "freeWillConsiderMovementSpeed", ConsiderMovementSpeedDefault, true);
             Scribe_Values.Look(ref ConsiderPassions, "freeWillConsiderPassions", ConsiderPassionsDefault, true);
             Scribe_Values.Look(ref ConsiderBeauty, "freeWillConsiderBeauty", ConsiderBeautyDefault, true);

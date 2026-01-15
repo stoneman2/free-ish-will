@@ -15,6 +15,10 @@ public class ThoughtWorker_Precept_FreeWillStreak : ThoughtWorker_Precept
         {
             worldComp = Find.World.GetComponent<FreeWill_WorldComponent>();
         }
+        if (!worldComp.Settings.ConsiderIdeology)
+        {
+            return ThoughtState.Inactive;
+        }
         if (!pawn.IsColonistPlayerControlled)
         {
             return ThoughtState.Inactive;
