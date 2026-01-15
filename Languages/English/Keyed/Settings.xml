@@ -68,6 +68,9 @@
   <FreeWillWorkPreference>Work preference</FreeWillWorkPreference>
   <FreeWillWorkAssignment>Work assignment</FreeWillWorkAssignment>
 
+  <FreeWillConsiderIdeology>Enable Ideology</FreeWillConsiderIdeology>
+  <FreeWillConsiderIdeologyLong>Enable ideology integration, where their beliefs affects if you can turn on free will on them. This requires a restart.</FreeWillConsiderIdeologyLong>
+
   <!-- Considerations-->
   <FreeWillConsiderMovementSpeed>Consider movement speed</FreeWillConsiderMovementSpeed>
   <FreeWillConsiderMovementSpeedLong>Colonists perfer work that suits their movement speed.</FreeWillConsiderMovementSpeedLong>
