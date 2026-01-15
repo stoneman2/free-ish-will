@@ -91,6 +91,42 @@ namespace FreeWill
             strategies[strategy.WorkType.defName] = strategy;
         }
 
+        // Complex Jobs parent mapping, lets just make them inherit default jobs
+        private static readonly Dictionary<string, string> fsfParentMapping = new Dictionary<string, string>()
+        {
+            { "FSFNurse", "Doctor" },
+            { "FSFSurgeon", "Doctor" },
+            
+            { "FSFTraining", "Handling" },
+            { "FSFTaming", "Handling" },
+            { "FSFSlaughter", "Handling" },
+            
+            { "FSFRepair", "Construction" },
+            { "FSFDeconstruct", "Construction" },
+            
+            { "FSFHarvesting", "Growing" },
+            { "FSFPruning", "PlantCutting" },
+            
+            { "FSFDrilling", "Mining" },
+            
+            { "FSFDrugs", "Crafting" },
+            { "FSFMachining", "Crafting" },
+            { "FSFFabrication", "Crafting" },
+            { "FSFRefining", "Crafting" },
+            { "FSFProduction", "Crafting" },
+            { "FSFSmelt", "Smithing" },
+            { "FSFStoneCut", "Smithing" },
+            { "FSFButcher", "Cooking" },
+            
+            { "FSFRearming", "Hauling" },
+            { "FSFTransport", "Hauling" },
+            { "FSFCremating", "Hauling" },
+            { "FSFDeliver", "Hauling" },
+            { "FSFHauling", "Hauling" },
+            
+            { "FSFScan", "Research" },
+        };
+
         /// <summary>
         /// Gets the strategy for the specified work type.
         /// If no specific strategy exists, returns the default strategy.
@@ -104,6 +140,14 @@ namespace FreeWill
             if (strategies.TryGetValue(workTypeDef.defName, out IWorkTypeStrategy strategy))
             {
                 return strategy;
+            }
+
+            if (fsfParentMapping.TryGetValue(workTypeDef.defName, out string parentDefName))
+            {
+                if (strategies.TryGetValue(parentDefName, out IWorkTypeStrategy parentStrategy))
+                {
+                    return parentStrategy;
+                }
             }
 
             // Fallback to default strategy
