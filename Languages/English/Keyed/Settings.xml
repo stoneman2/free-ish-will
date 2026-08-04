@@ -49,6 +49,7 @@
   <FreeWillFocusNoTarget>No work selected</FreeWillFocusNoTarget>
   <FreeWillFocusSummary>{0} | {1} | {2}</FreeWillFocusSummary>
   <FreeWillFocusTargetWork>Target work</FreeWillFocusTargetWork>
+  <FreeWillFocusSelected>Selected</FreeWillFocusSelected>
   <FreeWillFocusPreset>Preset</FreeWillFocusPreset>
   <FreeWillFocusPresetFocus>Focus</FreeWillFocusPresetFocus>
   <FreeWillFocusPresetFocusTip>A light nudge. Good when the work matters, but the colony should mostly act normally.</FreeWillFocusPresetFocusTip>
@@ -59,7 +60,6 @@
   <FreeWillFocusPresetCritical>Critical</FreeWillFocusPresetCritical>
   <FreeWillFocusPresetCriticalTip>A hard push. Other work can be disabled while this focus is active.</FreeWillFocusPresetCriticalTip>
   <FreeWillFocusPresetCustom>Custom</FreeWillFocusPresetCustom>
-  <FreeWillFocusPresetCustomTip>Keep the current slider values as a custom focus.</FreeWillFocusPresetCustomTip>
   <FreeWillFocusBoost>Focused work boost</FreeWillFocusBoost>
   <FreeWillFocusOtherWork>Other work allowed</FreeWillFocusOtherWork>
   <FreeWillFocusOtherWorkDisabled>Disabled</FreeWillFocusOtherWorkDisabled>
@@ -71,7 +71,6 @@
   <FreeWillFocusDuration1Day>1 day</FreeWillFocusDuration1Day>
   <FreeWillFocusDuration2Days>2 days</FreeWillFocusDuration2Days>
   <FreeWillFocusDuration5Days>5 days</FreeWillFocusDuration5Days>
-  <FreeWillFocusHelpText>Presets only move the sliders. Until cleared has no expiry and stays active until you clear it.</FreeWillFocusHelpText>
   
   <!-- Per-Work Type Toggle -->
   <FreeWillWorkTypeEnabled>Click to disable FreeWill for this job (allows manual control)</FreeWillWorkTypeEnabled>

@@ -46,7 +46,7 @@ namespace FreeWill
             draggable = true;
         }
 
-        public override Vector2 InitialSize => new Vector2(560f, 680f);
+        public override Vector2 InitialSize => new Vector2(640f, 720f);
 
         protected abstract string Title { get; }
         protected abstract string SetMessage(WorkTypeDef workType);
@@ -64,8 +64,8 @@ namespace FreeWill
 
             float panelTop = 98f;
             float panelBottom = inRect.height - 48f;
-            Rect workPanel = new Rect(0f, panelTop, 220f, panelBottom - panelTop);
-            Rect controlPanel = new Rect(232f, panelTop, inRect.width - 232f, panelBottom - panelTop);
+            Rect workPanel = new Rect(0f, panelTop, inRect.width, 300f);
+            Rect controlPanel = new Rect(0f, workPanel.yMax + 12f, inRect.width, panelBottom - workPanel.yMax - 12f);
             DrawWorkTypePanel(workPanel);
             DrawControlPanel(controlPanel);
             DrawBottomButtons(inRect);
@@ -104,86 +104,118 @@ namespace FreeWill
 
             Rect scrollRect = new Rect(inner.x, inner.y + 30f, inner.width, inner.height - 30f);
             List<WorkTypeDef> workTypes = DefDatabase<WorkTypeDef>.AllDefsListForReading;
-            Rect viewRect = new Rect(0f, 0f, scrollRect.width - 16f, workTypes.Count * 28f);
+            int columns = scrollRect.width >= 540f ? 3 : 2;
+            float gap = 8f;
+            float cardHeight = 56f;
+            float cardWidth = (scrollRect.width - 16f - (gap * (columns - 1))) / columns;
+            int rows = Mathf.CeilToInt(workTypes.Count / (float)columns);
+            Rect viewRect = new Rect(0f, 0f, scrollRect.width - 16f, rows * (cardHeight + gap));
 
             Widgets.BeginScrollView(scrollRect, ref scrollPosition, viewRect);
-            float y = 0f;
-            foreach (WorkTypeDef workType in workTypes)
+            for (int i = 0; i < workTypes.Count; i++)
             {
-                Rect rowRect = new Rect(0f, y, viewRect.width, 26f);
-                if (selectedWorkType == workType)
-                {
-                    Widgets.DrawHighlightSelected(rowRect);
-                }
-                else if (Mouse.IsOver(rowRect))
-                {
-                    Widgets.DrawHighlight(rowRect);
-                }
-
-                Text.Anchor = TextAnchor.MiddleLeft;
-                Widgets.Label(new Rect(rowRect.x + 6f, rowRect.y, rowRect.width - 12f, rowRect.height), workType.labelShort.CapitalizeFirst());
-                Text.Anchor = TextAnchor.UpperLeft;
-
-                if (Widgets.ButtonInvisible(rowRect))
-                {
-                    selectedWorkType = workType;
-                }
-                y += 28f;
+                WorkTypeDef workType = workTypes[i];
+                int column = i % columns;
+                int row = i / columns;
+                Rect cardRect = new Rect(column * (cardWidth + gap), row * (cardHeight + gap), cardWidth, cardHeight);
+                DrawWorkTypeCard(cardRect, workType);
             }
             Widgets.EndScrollView();
+        }
+
+        private void DrawWorkTypeCard(Rect rect, WorkTypeDef workType)
+        {
+            bool selected = selectedWorkType == workType;
+            bool hovered = Mouse.IsOver(rect);
+
+            if (selected)
+            {
+                Widgets.DrawHighlightSelected(rect);
+            }
+            else if (hovered)
+            {
+                Widgets.DrawHighlight(rect);
+            }
+
+            Widgets.DrawBox(rect);
+            Rect inner = rect.ContractedBy(8f);
+
+            Text.Font = GameFont.Small;
+            Text.Anchor = TextAnchor.MiddleLeft;
+            float labelWidth = selected ? inner.width - 68f : inner.width;
+            Widgets.Label(new Rect(inner.x, inner.y, labelWidth, inner.height), workType.labelShort.CapitalizeFirst());
+
+            if (selected)
+            {
+                Text.Anchor = TextAnchor.MiddleRight;
+                GUI.color = Color.green;
+                Widgets.Label(new Rect(inner.x, inner.y, inner.width, inner.height), "FreeWillFocusSelected".TranslateSimple());
+                GUI.color = Color.white;
+                Text.Anchor = TextAnchor.UpperLeft;
+            }
+
+            TooltipHandler.TipRegion(rect, workType.description);
+            if (Widgets.ButtonInvisible(rect))
+            {
+                selectedWorkType = workType;
+            }
         }
 
         private void DrawControlPanel(Rect rect)
         {
             Widgets.DrawMenuSection(rect);
             Rect inner = rect.ContractedBy(12f);
-            float y = inner.y;
 
-            Widgets.Label(new Rect(inner.x, y, inner.width, 24f), "FreeWillFocusPreset".TranslateSimple());
-            y += 28f;
-            DrawPresetRow(new Rect(inner.x, y, inner.width, 34f));
-            y += 40f;
-            DrawCustomPresetButton(new Rect(inner.x, y, inner.width, 28f));
-            y += 42f;
+            Rect presetRect = new Rect(inner.x, inner.y, inner.width, 76f);
+            Rect sliderRect = new Rect(inner.x, presetRect.yMax + 12f, inner.width, inner.yMax - presetRect.yMax - 12f);
 
-            DrawSliderLabel(new Rect(inner.x, y, inner.width, 24f), "FreeWillFocusBoost".TranslateSimple(), intensity.ToString("F1") + "x");
+            Widgets.Label(new Rect(presetRect.x, presetRect.y, presetRect.width, 24f), "FreeWillFocusPreset".TranslateSimple());
+            DrawPresetRow(new Rect(presetRect.x, presetRect.y + 30f, presetRect.width, 34f));
+            DrawSliderPanel(sliderRect);
+        }
+
+        private void DrawSliderPanel(Rect rect)
+        {
+            float columnGap = 18f;
+            float columnWidth = (rect.width - columnGap) / 2f;
+            Rect leftColumn = new Rect(rect.x, rect.y, columnWidth, rect.height);
+            Rect rightColumn = new Rect(rect.x + columnWidth + columnGap, rect.y, columnWidth, rect.height);
+
+            float y = leftColumn.y;
+            DrawSliderLabel(new Rect(leftColumn.x, y, leftColumn.width, 24f), "FreeWillFocusBoost".TranslateSimple(), intensity.ToString("F1") + "x");
             y += 24f;
-            float nextIntensity = Widgets.HorizontalSlider(new Rect(inner.x, y, inner.width, 24f), intensity, 1.0f, 5.0f, true);
+            float nextIntensity = Widgets.HorizontalSlider(new Rect(leftColumn.x, y, leftColumn.width, 24f), intensity, 1.0f, 5.0f, true);
             nextIntensity = RoundIntensity(nextIntensity);
             if (!Mathf.Approximately(nextIntensity, intensity))
             {
                 intensity = nextIntensity;
                 presetKey = CustomPresetKey;
             }
-            y += 44f;
 
+            y += 50f;
             string otherWorkValue = defocusMultiplier < 0.01f ? "FreeWillFocusOtherWorkDisabled".TranslateSimple() : defocusMultiplier.ToStringPercent();
-            DrawSliderLabel(new Rect(inner.x, y, inner.width, 24f), "FreeWillFocusOtherWork".TranslateSimple(), otherWorkValue);
+            DrawSliderLabel(new Rect(leftColumn.x, y, leftColumn.width, 24f), "FreeWillFocusOtherWork".TranslateSimple(), otherWorkValue);
             y += 24f;
-            float nextDefocus = Widgets.HorizontalSlider(new Rect(inner.x, y, inner.width, 24f), defocusMultiplier, 0.0f, 1.0f, true);
+            float nextDefocus = Widgets.HorizontalSlider(new Rect(leftColumn.x, y, leftColumn.width, 24f), defocusMultiplier, 0.0f, 1.0f, true);
             nextDefocus = RoundDefocus(nextDefocus);
             if (!Mathf.Approximately(nextDefocus, defocusMultiplier))
             {
                 defocusMultiplier = nextDefocus;
                 presetKey = CustomPresetKey;
             }
-            y += 44f;
 
-            DrawSliderLabel(new Rect(inner.x, y, inner.width, 24f), "FreeWillFocusDuration".TranslateSimple(), GetDurationLabel(SelectedDurationTicks));
+            y = rightColumn.y;
+            DrawSliderLabel(new Rect(rightColumn.x, y, rightColumn.width, 24f), "FreeWillFocusDuration".TranslateSimple(), GetDurationLabel(SelectedDurationTicks));
             y += 24f;
-            int nextDurationIndex = Mathf.RoundToInt(Widgets.HorizontalSlider(new Rect(inner.x, y, inner.width, 24f), durationIndex, 0f, durationOptions.Length - 1, true));
+            int nextDurationIndex = Mathf.RoundToInt(Widgets.HorizontalSlider(new Rect(rightColumn.x, y, rightColumn.width, 24f), durationIndex, 0f, durationOptions.Length - 1, true));
             nextDurationIndex = Mathf.Clamp(nextDurationIndex, 0, durationOptions.Length - 1);
             if (nextDurationIndex != durationIndex)
             {
                 durationIndex = nextDurationIndex;
                 presetKey = CustomPresetKey;
             }
-            y += 44f;
 
-            Rect noteRect = new Rect(inner.x, y, inner.width, inner.yMax - y);
-            GUI.color = Color.grey;
-            Widgets.Label(noteRect, "FreeWillFocusHelpText".TranslateSimple());
-            GUI.color = Color.white;
+            Text.Anchor = TextAnchor.UpperLeft;
         }
 
         private void DrawPresetRow(Rect rect)
@@ -206,20 +238,6 @@ namespace FreeWill
                 TooltipHandler.TipRegion(buttonRect, preset.TipKey.TranslateSimple());
                 x += buttonWidth + gap;
             }
-        }
-
-        private void DrawCustomPresetButton(Rect rect)
-        {
-            bool selected = presetKey == CustomPresetKey;
-            if (selected)
-            {
-                Widgets.DrawHighlightSelected(rect);
-            }
-            if (Widgets.ButtonText(rect, "FreeWillFocusPresetCustom".TranslateSimple()))
-            {
-                presetKey = CustomPresetKey;
-            }
-            TooltipHandler.TipRegion(rect, "FreeWillFocusPresetCustomTip".TranslateSimple());
         }
 
         private void DrawSliderLabel(Rect rect, string label, string value)
