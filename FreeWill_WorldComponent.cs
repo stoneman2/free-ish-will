@@ -94,6 +94,58 @@ namespace FreeWill
         }
 
         /// <summary>
+        /// Checks whether the pawn can participate in the work priority system.
+        /// </summary>
+        public bool IsControllableWorkPawn(Pawn pawn)
+        {
+            if (pawn == null || pawn.Dead || pawn.workSettings == null || !pawn.workSettings.EverWork)
+            {
+                return false;
+            }
+            return pawn.IsColonistPlayerControlled || pawn.IsSlaveOfColony;
+        }
+
+        /// <summary>
+        /// Applies the configured pawn category gates before ideology rules.
+        /// </summary>
+        public bool CanManagePawn(Pawn pawn)
+        {
+            if (!IsControllableWorkPawn(pawn))
+            {
+                return false;
+            }
+
+            if (pawn.IsSlaveOfColony)
+            {
+                if (!Settings.EnableSlaves) return false;
+            }
+            else if (!Settings.EnableColonists)
+            {
+                return false;
+            }
+
+            if (pawn.Ideo == null)
+            {
+                return Settings.EnableNoIdeology;
+            }
+            if (!Settings.EnableDifferentIdeology && HasDifferentIdeology(pawn))
+            {
+                return false;
+            }
+            return true;
+        }
+
+        private bool HasDifferentIdeology(Pawn pawn)
+        {
+            if (!ModsConfig.IdeologyActive || pawn?.Ideo == null || Faction.OfPlayer?.ideos == null)
+            {
+                return false;
+            }
+            Ideo primaryIdeology = Faction.OfPlayer.ideos.PrimaryIdeo;
+            return primaryIdeology != null && pawn.Ideo != primaryIdeology;
+        }
+
+        /// <summary>
         /// Determines whether a pawn currently has free will enabled.
         /// </summary>
         /// <param name="pawn">Pawn to check.</param>
@@ -101,15 +153,17 @@ namespace FreeWill
         /// <returns>True if the pawn has free will.</returns>
         public bool HasFreeWill(Pawn pawn, string pawnKey)
         {
-            if (pawn?.Ideo == null ||
-                !pawn.IsColonistPlayerControlled ||
-                pawn.IsSlaveOfColony ||
-                (IdeologyAvailable && Settings.ConsiderIdeology && freeWillProhibited != null && pawn.Ideo.HasPrecept(freeWillProhibited))
-            )
+            if (!CanManagePawn(pawn) || string.IsNullOrEmpty(pawnKey))
             {
                 return false;
             }
-            if (IdeologyAvailable && Settings.ConsiderIdeology && freeWillMandatory != null && pawn.Ideo.HasPrecept(freeWillMandatory))
+
+            bool applyIdeology = IdeologyAvailable && Settings.ConsiderIdeology && pawn.Ideo != null;
+            if (applyIdeology && freeWillProhibited != null && pawn.Ideo.HasPrecept(freeWillProhibited))
+            {
+                return false;
+            }
+            if (applyIdeology && freeWillMandatory != null && pawn.Ideo.HasPrecept(freeWillMandatory))
             {
                 return true;
             }
@@ -117,7 +171,7 @@ namespace FreeWill
             freePawns = freePawns ?? new Dictionary<string, bool> { };
             if (!freePawns.ContainsKey(pawnKey))
             {
-                if (IdeologyAvailable && Settings.ConsiderIdeology && 
+                if (applyIdeology &&
                     ((freeWillDisapproved != null && pawn.Ideo.HasPrecept(freeWillDisapproved)) || 
                      (freeWillProhibited != null && pawn.Ideo.HasPrecept(freeWillProhibited))))
                 {
@@ -143,21 +197,16 @@ namespace FreeWill
         {
             try
             {
-                if (pawn == null)
+                if (!CanManagePawn(pawn))
                 {
                     return false;
                 }
-                if (pawn.Ideo == null)
+                if (!IdeologyAvailable || !Settings.ConsiderIdeology || pawn.Ideo == null)
                 {
                     return true;
                 }
-                if (!pawn.IsColonistPlayerControlled || pawn.IsSlaveOfColony)
-                {
-                    return false;
-                }
-                bool canChange = !IdeologyAvailable || !Settings.ConsiderIdeology || 
-                    ((freeWillMandatory == null || !pawn.Ideo.HasPrecept(freeWillMandatory)) && 
-                     (freeWillProhibited == null || !pawn.Ideo.HasPrecept(freeWillProhibited)));
+                bool canChange = (freeWillMandatory == null || !pawn.Ideo.HasPrecept(freeWillMandatory)) &&
+                    (freeWillProhibited == null || !pawn.Ideo.HasPrecept(freeWillProhibited));
                 if (!canChange)
                 {
                     EnsureFreeWillStatusIsCorrect(pawn, pawnKey);
@@ -185,7 +234,7 @@ namespace FreeWill
         {
             try
             {
-                if (pawn?.Ideo == null)
+                if (!CanManagePawn(pawn) || pawn.Ideo == null || !IdeologyAvailable || !Settings.ConsiderIdeology)
                 {
                     return;
                 }
@@ -225,16 +274,18 @@ namespace FreeWill
         /// <returns>True if free will was granted.</returns>
         public bool TryGiveFreeWill(Pawn pawn)
         {
-            if (pawn?.Ideo == null)
+            if (!CanManagePawn(pawn))
             {
                 return false;
             }
-            if (IdeologyAvailable && Settings.ConsiderIdeology && freeWillProhibited != null && pawn.Ideo.HasPrecept(freeWillProhibited))
+            if (IdeologyAvailable && Settings.ConsiderIdeology && pawn.Ideo != null && freeWillProhibited != null && pawn.Ideo.HasPrecept(freeWillProhibited))
             {
                 return false;
             }
             freePawns = freePawns ?? new Dictionary<string, bool> { };
-            freePawns[pawn.GetUniqueLoadID()] = true;
+            string pawnKey = pawn.GetUniqueLoadID();
+            if (string.IsNullOrEmpty(pawnKey)) return false;
+            freePawns[pawnKey] = true;
             return true;
         }
 
@@ -245,16 +296,18 @@ namespace FreeWill
         /// <returns>True if free will was removed.</returns>
         public bool TryRemoveFreeWill(Pawn pawn)
         {
-            if (pawn?.Ideo == null)
+            if (!CanManagePawn(pawn))
             {
                 return false;
             }
-            if (!pawn.IsSlaveOfColony && IdeologyAvailable && Settings.ConsiderIdeology && freeWillMandatory != null && pawn.Ideo.HasPrecept(freeWillMandatory))
+            if (IdeologyAvailable && Settings.ConsiderIdeology && pawn.Ideo != null && freeWillMandatory != null && pawn.Ideo.HasPrecept(freeWillMandatory))
             {
                 return false;
             }
             freePawns = freePawns ?? new Dictionary<string, bool> { };
-            freePawns[pawn.GetUniqueLoadID()] = false;
+            string pawnKey = pawn.GetUniqueLoadID();
+            if (string.IsNullOrEmpty(pawnKey)) return false;
+            freePawns[pawnKey] = false;
             return true;
         }
 

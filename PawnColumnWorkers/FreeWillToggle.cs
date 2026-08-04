@@ -22,6 +22,7 @@ namespace FreeWill.PawnColumnWorkers
             }
             
             string pawnKey = pawn.GetUniqueLoadID();
+            bool canManage = worldComp.CanManagePawn(pawn);
             bool hasFreeWill = worldComp.HasFreeWill(pawn, pawnKey);
             bool canChange = worldComp.FreeWillCanChange(pawn, pawnKey);
             
@@ -36,7 +37,7 @@ namespace FreeWill.PawnColumnWorkers
             
             Texture2D icon = hasFreeWill ? FreeWillResources.FreeWillOn : FreeWillResources.FreeWillOff;
             
-            if (Event.current.type == EventType.MouseDown && Event.current.button == 1 && rect.Contains(Event.current.mousePosition))
+            if (canManage && Event.current.type == EventType.MouseDown && Event.current.button == 1 && rect.Contains(Event.current.mousePosition))
             {
                 Event.current.Use();
                 Find.WindowStack.Add(new Dialog_PawnFocus(pawn));
@@ -58,7 +59,11 @@ namespace FreeWill.PawnColumnWorkers
             GUI.color = Color.white;
             
             string tip;
-            if (!canChange)
+            if (!canManage)
+            {
+                tip = "FreeWillTogglePawnTypeDisabled".TranslateSimple();
+            }
+            else if (!canChange)
             {
                 tip = "FreeWillToggleCannotChange".TranslateSimple();
             }

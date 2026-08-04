@@ -11,6 +11,10 @@ namespace FreeWill
     {
         // mod default settings
         private const bool ConsiderIdeologyDefault = true;
+        private const bool EnableColonistsDefault = true;
+        private const bool EnableSlavesDefault = true;
+        private const bool EnableNoIdeologyDefault = true;
+        private const bool EnableDifferentIdeologyDefault = true;
         private const bool ConsiderBrawlersNotHuntingDefault = true;
         private const bool ConsiderHasHuntingWeaponDefault = true;
         private const float ConsiderMovementSpeedDefault = 1.0f;
@@ -33,6 +37,10 @@ namespace FreeWill
         private const bool UseDecayUnburiedDefault = true;
         
         public bool ConsiderIdeology = ConsiderIdeologyDefault;
+        public bool EnableColonists = EnableColonistsDefault;
+        public bool EnableSlaves = EnableSlavesDefault;
+        public bool EnableNoIdeology = EnableNoIdeologyDefault;
+        public bool EnableDifferentIdeology = EnableDifferentIdeologyDefault;
         public bool ConsiderBrawlersNotHunting = ConsiderBrawlersNotHuntingDefault;
         public bool ConsiderHasHuntingWeapon = ConsiderHasHuntingWeaponDefault;
         public float ConsiderMovementSpeed = ConsiderMovementSpeedDefault;
@@ -119,11 +127,21 @@ namespace FreeWill
         private void DrawGeneralSettings(Listing_Standard ls)
         {
             ls.Gap(10.0f);
-            ls.Label("FreeWillPerformanceSettings".TranslateSimple());
+            ls.Label("FreeWillPawnEligibilitySettings".TranslateSimple());
+            ls.GapLine(10.0f);
+            ls.CheckboxLabeled("FreeWillEnableColonists".TranslateSimple(), ref EnableColonists, "FreeWillEnableColonistsLong".TranslateSimple());
+            ls.CheckboxLabeled("FreeWillEnableSlaves".TranslateSimple(), ref EnableSlaves, "FreeWillEnableSlavesLong".TranslateSimple());
+            ls.CheckboxLabeled("FreeWillEnableNoIdeology".TranslateSimple(), ref EnableNoIdeology, "FreeWillEnableNoIdeologyLong".TranslateSimple());
+            ls.CheckboxLabeled("FreeWillEnableDifferentIdeology".TranslateSimple(), ref EnableDifferentIdeology, "FreeWillEnableDifferentIdeologyLong".TranslateSimple());
+            ls.Gap(20.0f);
+
+            ls.Label("FreeWillIdeologySettings".TranslateSimple());
             ls.GapLine(10.0f);
             ls.CheckboxLabeled("FreeWillConsiderIdeology".TranslateSimple(), ref ConsiderIdeology, "FreeWillConsiderIdeologyLong".TranslateSimple());
-            ls.Gap(10.0f);
+            ls.Gap(20.0f);
 
+            ls.Label("FreeWillPerformanceSettings".TranslateSimple());
+            ls.GapLine(10.0f);
             string tickLabel = "FreeWillTickInterval".TranslateSimple();
             string tickValue = string.Format("{0}", TickInterval);
             string tickTip = "FreeWillTickIntervalLong".TranslateSimple();
@@ -261,6 +279,10 @@ namespace FreeWill
         public override void ExposeData()
         {
             Scribe_Values.Look(ref ConsiderIdeology, "freeWillConsiderIdeology", ConsiderIdeologyDefault, true);
+            Scribe_Values.Look(ref EnableColonists, "freeWillEnableColonists", EnableColonistsDefault, true);
+            Scribe_Values.Look(ref EnableSlaves, "freeWillEnableSlaves", EnableSlavesDefault, true);
+            Scribe_Values.Look(ref EnableNoIdeology, "freeWillEnableNoIdeology", EnableNoIdeologyDefault, true);
+            Scribe_Values.Look(ref EnableDifferentIdeology, "freeWillEnableDifferentIdeology", EnableDifferentIdeologyDefault, true);
             Scribe_Values.Look(ref ConsiderMovementSpeed, "freeWillConsiderMovementSpeed", ConsiderMovementSpeedDefault, true);
             Scribe_Values.Look(ref ConsiderPassions, "freeWillConsiderPassions", ConsiderPassionsDefault, true);
             Scribe_Values.Look(ref ConsiderBeauty, "freeWillConsiderBeauty", ConsiderBeautyDefault, true);

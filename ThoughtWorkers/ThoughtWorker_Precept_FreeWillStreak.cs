@@ -19,11 +19,7 @@ public class ThoughtWorker_Precept_FreeWillStreak : ThoughtWorker_Precept
         {
             return ThoughtState.Inactive;
         }
-        if (!pawn.IsColonistPlayerControlled)
-        {
-            return ThoughtState.Inactive;
-        }
-        if (pawn.IsSlaveOfColony)
+        if (!worldComp.CanManagePawn(pawn))
         {
             return ThoughtState.Inactive;
         }

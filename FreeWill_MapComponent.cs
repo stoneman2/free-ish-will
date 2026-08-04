@@ -30,14 +30,16 @@ namespace FreeWill
 
         private Dictionary<Pawn, Dictionary<WorkTypeDef, Priority>> priorities;
         private readonly Dictionary<Pawn, int> lastBored;
+        private readonly List<Pawn> managedPawns;
         private readonly FieldInfo activeAlertsField;
         private FreeWill_WorldComponent worldComp;
+        private bool managedPawnsInitialized;
 
         private int throttleCounter = 0;
         private readonly FreeWill_Mod mod;
 
         public List<Pawn> PawnsInFaction { get; private set; }
-        public int NumPawns => map.mapPawns.FreeColonistsSpawnedCount;
+        public int NumPawns => managedPawnsInitialized ? managedPawns.Count : map.mapPawns.FreeColonistsSpawnedCount;
 
 
         public float PercentPawnsNeedingTreatment { get; private set; }
@@ -89,6 +91,7 @@ namespace FreeWill
         {
             priorities = new Dictionary<Pawn, Dictionary<WorkTypeDef, Priority>> { };
             lastBored = new Dictionary<Pawn, int> { };
+            managedPawns = new List<Pawn>();
             activeAlertsField = AccessTools.Field(typeof(AlertsReadout), "AllAlerts");
             mod = LoadedModManager.GetMod<FreeWill_Mod>();
         }
@@ -218,7 +221,11 @@ namespace FreeWill
             }
             int i = actionCounter - mapComponentCheckActions.Length;
             List<WorkTypeDef> workTypeDefs = DefDatabase<WorkTypeDef>.AllDefsListForReading;
-            List<Pawn> pawns = map.mapPawns.FreeColonistsSpawned;
+            if (i == 0)
+            {
+                RefreshManagedPawns();
+            }
+            List<Pawn> pawns = managedPawns;
 
             if (pawns == null || workTypeDefs == null)
             {
@@ -291,6 +298,24 @@ namespace FreeWill
             _ = SetPriorityAction(pawn, pawnKey, workTypeDef);
         }
 
+        private void RefreshManagedPawns()
+        {
+            managedPawns.Clear();
+            managedPawnsInitialized = true;
+            if (worldComp == null || map?.mapPawns?.AllPawnsSpawned == null)
+            {
+                return;
+            }
+
+            foreach (Pawn pawn in map.mapPawns.AllPawnsSpawned)
+            {
+                if (worldComp.CanManagePawn(pawn))
+                {
+                    managedPawns.Add(pawn);
+                }
+            }
+        }
+
         /// <summary>
         /// Records the current tick as the last time the specified pawn was bored.
         /// </summary>
@@ -334,6 +359,8 @@ namespace FreeWill
             actionCounter = 0;
             throttleCounter = 0;      
             priorities.Clear();
+            managedPawns.Clear();
+            managedPawnsInitialized = false;
             pawnIndexCache = "unknown";
         }
         
@@ -369,20 +396,6 @@ namespace FreeWill
             {
                 Log.ErrorOnce($"Free Will: worldComp is null for pawn {pawn.Name}: mapTickCounter = {actionCounter}", 584626);
                 return msg;
-            }
-
-            // Handle slaves
-            if (pawn.IsSlaveOfColony)
-            {
-                if (worldComp.HasFreeWill(pawn, pawnKey))
-                {
-                    bool ok = worldComp.TryRemoveFreeWill(pawn);
-                    if (!ok)
-                    {
-                        Log.ErrorOnce("Free Will: could not remove free will from slave", 164752145);
-                    }
-                    return msg;
-                }
             }
 
             worldComp.EnsureFreeWillStatusIsCorrect(pawn, pawnKey);

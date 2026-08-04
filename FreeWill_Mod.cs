@@ -84,10 +84,6 @@ namespace FreeWill
             {
                 return;
             }
-            if (!___pawn.IsColonistPlayerControlled)
-            {
-                return;
-            }
             FreeWill_WorldComponent worldComp = Find.World?.GetComponent<FreeWill_WorldComponent>();
             if (worldComp == null || !worldComp.HasFreeWill(___pawn, ___pawn.GetUniqueLoadID()))
             {

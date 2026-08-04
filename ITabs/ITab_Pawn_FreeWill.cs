@@ -31,7 +31,9 @@ namespace FreeWill
             get
             {
                 Pawn pawn = GetCurrentPawn();
-                return pawn != null && pawn.IsColonistPlayerControlled;
+                if (pawn == null) return false;
+                FreeWill_WorldComponent component = worldComp ?? Find.World?.GetComponent<FreeWill_WorldComponent>();
+                return component?.IsControllableWorkPawn(pawn) ?? (pawn.IsColonistPlayerControlled || pawn.IsSlaveOfColony);
             }
         }
 
@@ -221,10 +223,9 @@ namespace FreeWill
                 if (Mouse.IsOver(rect))
                 {
                     string tip;
-                    if (pawn.IsSlaveOfColony)
+                    if (!worldComp.CanManagePawn(pawn))
                     {
-                        // pawn is slave
-                        tip = "FreeWillITabWorkScheduleSlave".Translate(pawn.NameShortColored);
+                        tip = "FreeWillITabPawnTypeDisabled".Translate(pawn.NameShortColored);
                     }
                     else if (canChange)
                     {

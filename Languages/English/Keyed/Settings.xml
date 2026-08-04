@@ -15,6 +15,20 @@
   <FreeWillSettingsPrioritiesDescription>Global Work Type Limits and Adjustments</FreeWillSettingsPrioritiesDescription>
   <FreeWillPriorityCap>Max Priority</FreeWillPriorityCap>
 
+  <!-- Pawn eligibility -->
+  <FreeWillPawnEligibilitySettings>Pawn eligibility</FreeWillPawnEligibilitySettings>
+  <FreeWillEnableColonists>Manage colonists</FreeWillEnableColonists>
+  <FreeWillEnableColonistsLong>Allow Free-ish Will to manage controllable colonists.</FreeWillEnableColonistsLong>
+  <FreeWillEnableSlaves>Manage slaves</FreeWillEnableSlaves>
+  <FreeWillEnableSlavesLong>Allow Free-ish Will to manage controllable slaves.</FreeWillEnableSlavesLong>
+  <FreeWillEnableNoIdeology>Manage pawns without an ideology</FreeWillEnableNoIdeology>
+  <FreeWillEnableNoIdeologyLong>Allow controllable pawns without an ideology to use Free-ish Will.</FreeWillEnableNoIdeologyLong>
+  <FreeWillEnableDifferentIdeology>Manage pawns with another ideology</FreeWillEnableDifferentIdeology>
+  <FreeWillEnableDifferentIdeologyLong>Allow controllable pawns whose ideology differs from the colony's primary ideology to use Free-ish Will.</FreeWillEnableDifferentIdeologyLong>
+
+  <!-- Ideology settings -->
+  <FreeWillIdeologySettings>Ideology rules</FreeWillIdeologySettings>
+
   <!-- Performance Settings -->
   <FreeWillPerformanceSettings>Performance Settings</FreeWillPerformanceSettings>
   <FreeWillTickInterval>Update interval (ticks)</FreeWillTickInterval>
@@ -32,6 +46,7 @@
   <FreeWillToggleEnable>Enable FreeWill for {0}</FreeWillToggleEnable>
   <FreeWillToggleDisable>Disable FreeWill for {0}</FreeWillToggleDisable>
   <FreeWillToggleCannotChange>Cannot change FreeWill (ideology restriction)</FreeWillToggleCannotChange>
+  <FreeWillTogglePawnTypeDisabled>This pawn type is disabled in Free-ish Will settings</FreeWillTogglePawnTypeDisabled>
   
   <!-- Focus Dialog -->
   <FreeWillGlobalFocusTitle>Colony Focus</FreeWillGlobalFocusTitle>
@@ -86,15 +101,15 @@
   <!-- Mod ITab -->
   <FreeWillITab>Free will</FreeWillITab>
   <FreeWillITabCheckbox>Free will</FreeWillITabCheckbox>
-  <FreeWillITabWorkScheduleSlave>{0} is currently enslaved and must always be given their work tasks.</FreeWillITabWorkScheduleSlave>
+  <FreeWillITabPawnTypeDisabled>Free-ish Will management is disabled for {0}'s pawn category in the mod settings.</FreeWillITabPawnTypeDisabled>
   <FreeWillITabWorkScheduleCanChange>Allows {0} to choose their own work tasks. This might affect their mood if it goes against their ideology.</FreeWillITabWorkScheduleCanChange>
   <FreeWillITabWorkScheduleProhibited>{0} subscribes to an ideology that prohibits telling others what to do. {1} will always choose their own work tasks.</FreeWillITabWorkScheduleProhibited>
   <FreeWillITabWorkScheduleMandatory>{0} subscribes to an ideology that enforces adherence to a strict work schedule. {1} must always be given their work tasks.</FreeWillITabWorkScheduleMandatory>
   <FreeWillWorkPreference>Work preference</FreeWillWorkPreference>
   <FreeWillWorkAssignment>Work assignment</FreeWillWorkAssignment>
 
-  <FreeWillConsiderIdeology>Enable Ideology</FreeWillConsiderIdeology>
-  <FreeWillConsiderIdeologyLong>Enable ideology integration, where their beliefs affects if you can turn on free will on them. This requires a restart.</FreeWillConsiderIdeologyLong>
+  <FreeWillConsiderIdeology>Apply ideology precepts</FreeWillConsiderIdeology>
+  <FreeWillConsiderIdeologyLong>After pawn eligibility is checked, allow Free Will precepts to set the pawn's default state or lock it on or off.</FreeWillConsiderIdeologyLong>
 
 
   <FreeWillUseDecayDeterioration>Decay: Deterioration</FreeWillUseDecayDeterioration>

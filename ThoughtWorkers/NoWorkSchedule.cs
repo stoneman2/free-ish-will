@@ -6,16 +6,11 @@ public class ThoughtWorker_Precept_NoWorkSchedule : ThoughtWorker_Precept
 {
     protected override ThoughtState ShouldHaveThought(Pawn pawn)
     {
-        if (pawn.IsColonistPlayerControlled || pawn.IsSlaveOfColony)
+        FreeWill_WorldComponent worldComp = Find.World?.GetComponent<FreeWill_WorldComponent>();
+        if (worldComp == null || !worldComp.Settings.ConsiderIdeology || !worldComp.CanManagePawn(pawn))
         {
-            FreeWill_WorldComponent worldComp = Find.World?.GetComponent<FreeWill_WorldComponent>();
-            if (worldComp == null || !worldComp.Settings.ConsiderIdeology)
-            {
-                return ThoughtState.Inactive;
-            }
-            // free pawns should have this thought
-            return worldComp.HasFreeWill(pawn, pawn.GetUniqueLoadID()) ? ThoughtState.ActiveDefault : ThoughtState.Inactive;
+            return ThoughtState.Inactive;
         }
-        return false;
+        return worldComp.HasFreeWill(pawn, pawn.GetUniqueLoadID()) ? ThoughtState.ActiveDefault : ThoughtState.Inactive;
     }
 }
