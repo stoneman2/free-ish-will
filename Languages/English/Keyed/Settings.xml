@@ -24,8 +24,8 @@
   <FreeWillOpenSettings>Open FreeWill Settings</FreeWillOpenSettings>
   <FreeWillRefreshPriorities>Force Recalculate All Priorities</FreeWillRefreshPriorities>
   <FreeWillPrioritiesRefreshed>FreeWill priorities refreshed.</FreeWillPrioritiesRefreshed>
-  <FreeWillSetGlobalFocus>Set Global Focus (All Pawns)</FreeWillSetGlobalFocus>
-  <FreeWillClearGlobalFocus>Clear Global Focus</FreeWillClearGlobalFocus>
+  <FreeWillSetGlobalFocus>Set Colony Focus</FreeWillSetGlobalFocus>
+  <FreeWillClearGlobalFocus>Clear Colony Focus</FreeWillClearGlobalFocus>
   
   <!-- Per-Pawn Toggle -->
   <FreeWillToggleHeader>FreeWill</FreeWillToggleHeader>
@@ -34,18 +34,44 @@
   <FreeWillToggleCannotChange>Cannot change FreeWill (ideology restriction)</FreeWillToggleCannotChange>
   
   <!-- Focus Dialog -->
-  <FreeWillGlobalFocusTitle>Global Focus</FreeWillGlobalFocusTitle>
-  <FreeWillFocusIntensity>Focus Intensity</FreeWillFocusIntensity>
-  <FreeWillDefocusIntensity>Other Work</FreeWillDefocusIntensity>
+  <FreeWillGlobalFocusTitle>Colony Focus</FreeWillGlobalFocusTitle>
+  <FreeWillFocusIntensity>Focused work boost</FreeWillFocusIntensity>
+  <FreeWillDefocusIntensity>Other work allowed</FreeWillDefocusIntensity>
   <FreeWillMaxPawns>Max Pawns</FreeWillMaxPawns>
   <FreeWillUnlimited>None</FreeWillUnlimited>
-  <FreeWillSelectWorkType>Select Work Type</FreeWillSelectWorkType>
+  <FreeWillSelectWorkType>Select work type</FreeWillSelectWorkType>
   <FreeWillApplyFocus>Apply Focus</FreeWillApplyFocus>
   <FreeWillClearFocus>Clear Focus</FreeWillClearFocus>
   <FreeWillCancel>Cancel</FreeWillCancel>
   <FreeWillNoWorkTypeSelected>Please select a work type first.</FreeWillNoWorkTypeSelected>
-  <FreeWillGlobalFocusSet>Everyone now focusing on {0}!</FreeWillGlobalFocusSet>
-  <FreeWillGlobalFocusCleared>Global focus cleared.</FreeWillGlobalFocusCleared>
+  <FreeWillGlobalFocusSet>Colony focus set to {0}.</FreeWillGlobalFocusSet>
+  <FreeWillGlobalFocusCleared>Colony focus cleared.</FreeWillGlobalFocusCleared>
+  <FreeWillFocusNoTarget>No work selected</FreeWillFocusNoTarget>
+  <FreeWillFocusSummary>{0} | {1} | {2}</FreeWillFocusSummary>
+  <FreeWillFocusTargetWork>Target work</FreeWillFocusTargetWork>
+  <FreeWillFocusPreset>Preset</FreeWillFocusPreset>
+  <FreeWillFocusPresetFocus>Focus</FreeWillFocusPresetFocus>
+  <FreeWillFocusPresetFocusTip>A light nudge. Good when the work matters, but the colony should mostly act normally.</FreeWillFocusPresetFocusTip>
+  <FreeWillFocusPresetImportant>Important</FreeWillFocusPresetImportant>
+  <FreeWillFocusPresetImportantTip>A firm directive. Good default when you want the selected work to actually get done.</FreeWillFocusPresetImportantTip>
+  <FreeWillFocusPresetUrgent>Urgent</FreeWillFocusPresetUrgent>
+  <FreeWillFocusPresetUrgentTip>A strong push for short term problems that should not wait.</FreeWillFocusPresetUrgentTip>
+  <FreeWillFocusPresetCritical>Critical</FreeWillFocusPresetCritical>
+  <FreeWillFocusPresetCriticalTip>A hard push. Other work can be disabled while this focus is active.</FreeWillFocusPresetCriticalTip>
+  <FreeWillFocusPresetCustom>Custom</FreeWillFocusPresetCustom>
+  <FreeWillFocusPresetCustomTip>Keep the current slider values as a custom focus.</FreeWillFocusPresetCustomTip>
+  <FreeWillFocusBoost>Focused work boost</FreeWillFocusBoost>
+  <FreeWillFocusOtherWork>Other work allowed</FreeWillFocusOtherWork>
+  <FreeWillFocusOtherWorkDisabled>Disabled</FreeWillFocusOtherWorkDisabled>
+  <FreeWillFocusDuration>Duration</FreeWillFocusDuration>
+  <FreeWillFocusDurationUntilCleared>Until cleared</FreeWillFocusDurationUntilCleared>
+  <FreeWillFocusDuration3Hours>3 hours</FreeWillFocusDuration3Hours>
+  <FreeWillFocusDuration6Hours>6 hours</FreeWillFocusDuration6Hours>
+  <FreeWillFocusDuration12Hours>12 hours</FreeWillFocusDuration12Hours>
+  <FreeWillFocusDuration1Day>1 day</FreeWillFocusDuration1Day>
+  <FreeWillFocusDuration2Days>2 days</FreeWillFocusDuration2Days>
+  <FreeWillFocusDuration5Days>5 days</FreeWillFocusDuration5Days>
+  <FreeWillFocusHelpText>Presets only move the sliders. Until cleared has no expiry and stays active until you clear it.</FreeWillFocusHelpText>
   
   <!-- Per-Work Type Toggle -->
   <FreeWillWorkTypeEnabled>Click to disable FreeWill for this job (allows manual control)</FreeWillWorkTypeEnabled>
@@ -53,8 +79,8 @@
   
   <!-- Per-Pawn Focus -->
   <FreeWillToggleRightClickFocus>Right-click to set pawn focus</FreeWillToggleRightClickFocus>
-  <FreeWillPawnFocusTitle>Focus Mode: {0}</FreeWillPawnFocusTitle>
-  <FreeWillPawnFocusSet>{0} is now focusing on {1}!</FreeWillPawnFocusSet>
+  <FreeWillPawnFocusTitle>Pawn Focus: {0}</FreeWillPawnFocusTitle>
+  <FreeWillPawnFocusSet>{0}'s focus set to {1}.</FreeWillPawnFocusSet>
   <FreeWillPawnFocusCleared>{0}'s focus cleared.</FreeWillPawnFocusCleared>
 
 

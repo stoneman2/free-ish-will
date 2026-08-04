@@ -68,6 +68,9 @@ namespace FreeWill
             try
             {
                 freePawns = freePawns ?? new Dictionary<string, bool> { };
+                pawnFocuses = pawnFocuses ?? new Dictionary<string, PawnFocusData>();
+                DisabledWorkTypes = DisabledWorkTypes ?? new HashSet<string>();
+                ClearExpiredFocuses(Find.TickManager?.TicksGame ?? 0);
             }
             catch
             {
@@ -412,16 +415,25 @@ namespace FreeWill
         public PawnFocusData GlobalFocus => globalFocus;
 
         /// <summary>
-        /// Gets the active focus for a specific pawn (global takes priority).
+        /// Gets the active focus for a specific pawn.
         /// </summary>
         public PawnFocusData GetFocusForPawn(Pawn pawn)
         {
-            // Global focus takes priority
-            if (globalFocus != null) return globalFocus;
-            
-            // Check per-pawn focus
-            string pawnKey = pawn.GetUniqueLoadID();
-            if (pawnFocuses != null && pawnFocuses.TryGetValue(pawnKey, out var data))
+            PawnFocusData pawnFocus = GetPawnFocus(pawn);
+            if (pawnFocus != null)
+            {
+                return pawnFocus;
+            }
+            return globalFocus;
+        }
+
+        /// <summary>
+        /// Gets a pawn-specific focus, ignoring the global focus.
+        /// </summary>
+        public PawnFocusData GetPawnFocus(Pawn pawn)
+        {
+            string pawnKey = GetPawnKey(pawn);
+            if (pawnKey != null && pawnFocuses != null && pawnFocuses.TryGetValue(pawnKey, out var data))
             {
                 return data;
             }
@@ -433,11 +445,22 @@ namespace FreeWill
         /// </summary>
         public void SetGlobalFocus(WorkTypeDef workType, float intensity, float defocusMultiplier, int maxPawns)
         {
+            SetGlobalFocus(workType, intensity, defocusMultiplier, maxPawns, 0, "Custom");
+        }
+
+        /// <summary>
+        /// Sets a global focus that affects all pawns.
+        /// </summary>
+        public void SetGlobalFocus(WorkTypeDef workType, float intensity, float defocusMultiplier, int maxPawns, int durationTicks, string presetKey)
+        {
             globalFocus = new PawnFocusData
             {
                 WorkType = workType,
                 Intensity = intensity,
-                DefocusMultiplier = defocusMultiplier
+                DefocusMultiplier = defocusMultiplier,
+                DurationTicks = durationTicks,
+                ExpiresAtTick = GetExpiryTick(durationTicks),
+                PresetKey = string.IsNullOrEmpty(presetKey) ? "Custom" : presetKey
             };
             MaxPawnsForFocusedWork = maxPawns;
         }
@@ -456,13 +479,25 @@ namespace FreeWill
         /// </summary>
         public void SetPawnFocus(Pawn pawn, WorkTypeDef workType, float intensity, float defocusMultiplier)
         {
+            SetPawnFocus(pawn, workType, intensity, defocusMultiplier, 0, "Custom");
+        }
+
+        /// <summary>
+        /// Sets a focus for a specific pawn.
+        /// </summary>
+        public void SetPawnFocus(Pawn pawn, WorkTypeDef workType, float intensity, float defocusMultiplier, int durationTicks, string presetKey)
+        {
             pawnFocuses = pawnFocuses ?? new Dictionary<string, PawnFocusData>();
-            string pawnKey = pawn.GetUniqueLoadID();
+            string pawnKey = GetPawnKey(pawn);
+            if (pawnKey == null) return;
             pawnFocuses[pawnKey] = new PawnFocusData
             {
                 WorkType = workType,
                 Intensity = intensity,
-                DefocusMultiplier = defocusMultiplier
+                DefocusMultiplier = defocusMultiplier,
+                DurationTicks = durationTicks,
+                ExpiresAtTick = GetExpiryTick(durationTicks),
+                PresetKey = string.IsNullOrEmpty(presetKey) ? "Custom" : presetKey
             };
         }
 
@@ -472,8 +507,49 @@ namespace FreeWill
         public void ClearPawnFocus(Pawn pawn)
         {
             if (pawnFocuses == null) return;
-            string pawnKey = pawn.GetUniqueLoadID();
+            string pawnKey = GetPawnKey(pawn);
+            if (pawnKey == null) return;
             pawnFocuses.Remove(pawnKey);
+        }
+
+        private static string GetPawnKey(Pawn pawn)
+        {
+            string pawnKey = pawn?.GetUniqueLoadID();
+            return string.IsNullOrEmpty(pawnKey) ? null : pawnKey;
+        }
+
+        private static int GetExpiryTick(int durationTicks)
+        {
+            if (durationTicks <= 0) return 0;
+            return (Find.TickManager?.TicksGame ?? 0) + durationTicks;
+        }
+
+        private void ClearExpiredFocuses(int currentTick)
+        {
+            if (currentTick <= 0) return;
+
+            if (globalFocus != null && globalFocus.IsExpired(currentTick))
+            {
+                ClearGlobalFocus();
+            }
+
+            if (pawnFocuses == null || pawnFocuses.Count == 0) return;
+
+            List<string> expiredPawnKeys = null;
+            foreach (var entry in pawnFocuses)
+            {
+                if (entry.Value != null && entry.Value.IsExpired(currentTick))
+                {
+                    expiredPawnKeys = expiredPawnKeys ?? new List<string>();
+                    expiredPawnKeys.Add(entry.Key);
+                }
+            }
+
+            if (expiredPawnKeys == null) return;
+            foreach (string pawnKey in expiredPawnKeys)
+            {
+                pawnFocuses.Remove(pawnKey);
+            }
         }
 
         /// <summary>
@@ -515,6 +591,7 @@ namespace FreeWill
             Scribe_Collections.Look(ref freeWillOverride, "FreeWillFreeWillOverride", LookMode.Value, LookMode.Value);
             
             Scribe_Deep.Look(ref globalFocus, "FreeWillGlobalFocus");
+            Scribe_Collections.Look(ref pawnFocuses, "FreeWillPawnFocuses", LookMode.Value, LookMode.Deep);
             Scribe_Values.Look(ref MaxPawnsForFocusedWork, "FreeWillMaxPawnsForFocusedWork", 0);
             
             string disabledStr = null;
